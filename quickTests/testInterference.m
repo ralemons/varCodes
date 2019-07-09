@@ -7,19 +7,19 @@
 
 clear
 
-hBeam = beamPropagation2D(.00155,12,12,2^11,'hex');
-vBeam = beamPropagation2D(.00155,12,12,2^11,'hex');
+hBeam = beamPropagation2D(.00155,12,12,2^10,'hex');
+vBeam = beamPropagation2D(.00155,12,12,2^10,'hex');
 
-% hBeam = beamPropagation2D(.00155,12,12,2^11,'rect');
-% vBeam = beamPropagation2D(.00155,12,12,2^11,'rect');
+% hBeam = beamPropagation2D(.00155,12,12,2^10,'rect');
+% vBeam = beamPropagation2D(.00155,12,12,2^10,'rect');
 
-save('testVars.mat');
+save('C:\Users\rlemons\Documents\GitHub\varCodes\savedVars\testVars.mat');
     
 
 %% Load and set parameters
 
 clear
-load('testVars.mat');
+load('C:\Users\rlemons\Documents\GitHub\varCodes\savedVars\testVars.mat');
 
 % hBeam.field_Polar = [1 0];
 % vBeam.field_Polar = [0 1];

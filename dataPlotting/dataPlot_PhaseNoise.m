@@ -19,8 +19,8 @@ dataOUT = dataIN;
 
 optFreq = 1.934e14; % Optical Frequency in Hz
 
-fileOrder = {'Clock','Locked','Unlocked'};
-% fileOrder = {'Clock','Locked'};
+% fileOrder = {'Only CEP','ULM w/ LOCSET','ULM w/o LOCSET'};
+fileOrder = {'Clock','Locked'};
 
 
 
@@ -162,26 +162,26 @@ numPlot = 1:numFilesIn;
 % %%%%% dBc All Plot %%%%%
 % titles = {'PSD of Phase Noise, All'};
 % xLabels = repmat({'Frequency (Hz)'},numFilesIn+1,1);
-% yLabels = repmat({'Power (dBc)'},numFilesIn+1,1);
-%
-%
+% yLabels = repmat({'Power (dBc/Hz)'},numFilesIn+1,1);
+% 
+% 
 % figure(99);
 % ax = gca;
-%
+% 
 % for ii = numPlot
 %     semilogx(dataOUT(:,1,ii),dataOUT(:,2,ii),'linewidth',2);
 %     hold on
 %     xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
 %     ylim([min(minVal.dBc)-10 max(maxVal.dBc)+10]);
 % end
-%
-%
+% 
+% 
 % hold off
-%
+% 
 % % Make it look nice
 % legend({'Locked','Clock','Unlocked'},'Location','northeast');
 % ax.FontSize = 24;
-%
+% 
 % title(titles{1},'FontSize',30,'Interpreter','latex');
 % xlabel(xLabels{1},'FontSize',24,'Interpreter','latex');
 % ylabel(yLabels{1},'FontSize',24,'Interpreter','latex');
@@ -202,7 +202,7 @@ numPlot = 1:numFilesIn;
 % end
 % 
 % xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
-% ylim([10^-8 10^6]);
+% ylim([10^-8 10^0]);
 % 
 % hold off
 % 
@@ -222,75 +222,77 @@ numPlot = 1:numFilesIn;
 % ax.XTick = xTicks;
 % ax.XTickLabel = cellstr(num2str(round(log10(xTicks)), '10^%d'));
 % 
-% yTicks = 10.^(-8:3:6)';
+% yTicks = 10.^(-8:1:0)';
 % ax.YTick = yTicks;
 % ax.YTickLabel = cellstr(num2str(round(log10(yTicks)), '10^%d'));
 
 
 
 
-%%%%% rad/sqrt(Hz) w/ IPN All Plot %%%%%
-figure(97);
-ax = gca;
-
-lineTypes = {'-','-','-'};
-lineColors = {[120 137 163]/255,[33 54 86]/255,[0 0 0]/255};
-
-titles = {'PSD of Phase Noise, All'};
-xLabels = repmat({'Frequency (Hz)'},numFilesIn+1,1);
-yLabels = {'PND (rad $$\mathrm{Hz}^{-1/2}$$)',...
-    'Integrated PND (mrad)'};
-
-yyaxis left
-
-for ii = numPlot
-%     loglog(dataOUT(:,1,ii),dataOUT(:,4,ii),lineTypes{ii},'linewidth',4);
-    loglog(dataOUT(:,1,ii),dataOUT(:,4,ii),lineTypes{ii},...
-        'color',lineColors{ii},...
-        'linewidth',4);
-    hold on
-end
-
-ylabel(yLabels{1},'FontSize',24,'Interpreter','latex');
-
-
-yyaxis right
-
-for ii = 2
+% %%%%% rad/sqrt(Hz) w/ IPN All Plot %%%%%
+% figure(97);
+% ax = gca;
+% 
+% lineTypes = {'-','-','-'};
+% lineColors = {[120 137 163]/255,[33 54 86]/255,[0 0 0]/255};
+% 
+% titles = {'PSD of Phase Noise, All'};
+% xLabels = repmat({'Frequency (Hz)'},numFilesIn+1,1);
+% yLabels = {'PND (rad $$\mathrm{Hz}^{-1/2}$$)',...
+%     'Integrated PND (mrad)'};
+% 
+% yyaxis left
+% 
 % for ii = numPlot
-    semilogx(dataOUT(:,1,ii),dataOUT(:,5,ii)*1e3,lineTypes{ii},'linewidth',4);
-end
-
-
-xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
-ylim([0 max(intPhaseNoise.rad(1:2)*1e3)*1.25]);
-ylabel(yLabels{2},'FontSize',24,'Interpreter','latex');
-
-
-hold off
-
-
-% Make it look nice
-% legend([fileOrder,'Integrated PND (Clock)','Integrated PND (Locked)'],'Location','northeast');
-% legend([fileOrder,'Integrated PND'],'Location','northeast');
-legend({'RF Reference','$$f_{OOL}$$','Integrated PND'},'Location','northeast','Interpreter','latex');
-grid on
-
-xlabel(xLabels{1},'FontSize',24,'Interpreter','latex');
-
-ax.FontSize = 40;
-% title(titles{1},'FontSize',40,'Interpreter','latex');
+% %     loglog(dataOUT(:,1,ii),dataOUT(:,4,ii),lineTypes{ii},'linewidth',4);
+%     loglog(dataOUT(:,1,ii),dataOUT(:,4,ii),lineTypes{ii},...
+%         'color',lineColors{ii},...
+%         'linewidth',4);
+%     hold on
+% end
+% 
+% ylabel(yLabels{1},'FontSize',24,'Interpreter','latex');
+% 
+% 
+% yyaxis right
+% 
+% for ii = 2
+% % for ii = numPlot
+%     semilogx(dataOUT(:,1,ii),dataOUT(:,5,ii)*1e3,lineTypes{ii},'linewidth',4);
+% end
+% 
+% 
+% xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
+% ylim([0 max(intPhaseNoise.rad(1:2)*1e3)*1.25]);
+% % ylim([0 max(intPhaseNoise.rad(1:2)*1e3)*.0005]);
+% ylabel(yLabels{2},'FontSize',24,'Interpreter','latex');
+% 
+% 
+% hold off
+% 
+% 
+% % Make it look nice
+% % legend([fileOrder,'Integrated PND (Clock)','Integrated PND (Locked)'],'Location','northeast');
+% % legend([fileOrder,'Integrated PND'],'Location','northeast');
+% legend({'RF Reference','$$f_{OOL}$$','Integrated PND'},'Location','northeast','Interpreter','latex');
+% % legend(fileOrder,'Location','northeast','Interpreter','latex');
+% grid on
+% 
+% xlabel(xLabels{1},'FontSize',24,'Interpreter','latex');
+% 
+% ax.FontSize = 40;
+% % title(titles{1},'FontSize',40,'Interpreter','latex');
 
 
 %% Fancy Table with the Results %%
 
 
-Range = repmat({'1 Hz to 2.5 MHz'},1,3);
+Range = repmat({'1 Hz to 3 MHz'},1,3);
 % Range = repmat({'1 Hz to 1 MHz'},1,3);
 
-jitPrint = { [num2str(jitter.rf(1)/1e-12),' ps (RF)'] ...
+jitPrint = { [num2str(jitter.opt(1)/1e-18),' as (Opt)'] ...
     [num2str(jitter.opt(2)/1e-18),' as (Opt)'] ...
-    [num2str(jitter.opt(3)/1e-12),' ps (Opt)']};
+    [num2str(jitter.opt(3)/1e-18),' as (Opt)']};
 
 
 T = table(...
@@ -300,7 +302,9 @@ for ii = 1:3
     fprintf('\n')
 end
 disp(T)
-writetable(T,'D:\CEP\Tabulated\PhaseNoise_HiFi_1Hz.txt',...
+
+%%
+writetable(T,'D:\CEP\Tabulated\PhaseNoise_ULM.txt',...
     'Delimiter',',',...
     'QuoteStrings',true);
 

@@ -27,7 +27,7 @@ beamBak = beam.outputProperties2D('');
 beam.inputProperties2D(beamBak);
 
 tmp = beam.outputProperties2D('hex');
-tmp.hex_BeamsOn = [1,0,1,1,1,1,1];
+tmp.hex_BeamsOn = [1,1,1,1,1,1,1];
 % tmp.hex_AmpBeams = [1,.7,.7,1,1,1,.7];
 % tmp.hex_PhaseOffset = [0,0,0,0,pi,pi,pi]+pi/6;
 % tmp.hex_PhaseOffset = [0,pi,0,pi,0,pi,0]+pi/6;
