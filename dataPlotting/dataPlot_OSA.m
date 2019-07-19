@@ -31,7 +31,7 @@ end
 numPlot = 1:size(dataOUT,3);
 
 
-titles = {'In Loop Sprectrum',...
+titles = {'Out Of Loop Sprectrum, ULM',...
     'Out Of Loop Spectrum'};
 xLabels = repmat({'Wavelength (nm)'},numFilesIn+1,1);
 yLabels = repmat({'Power (dBm)'},numFilesIn+1,1);
@@ -43,7 +43,8 @@ for ii = numPlot
     ax = gca;
     
     
-    plot(dataOUT(:,1,ii),dataOUT(:,2,ii));
+    plot(dataOUT(:,1,ii),dataOUT(:,2,ii),...
+        'linewidth',3,'color',[33 54 86]/255);
     xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
     ylim([minVal(ii).dBm-10 maxVal(ii).dBm+10]);
     
