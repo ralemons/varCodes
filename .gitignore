@@ -1,5 +1,7 @@
 ## Ignore MATLAB files
 *.asv
+*.m~
+*.mat
 
 ## Ignore Images
 # JPEG
@@ -75,4 +77,3 @@
 *.rar
 *.tar
 *.zip
-
