@@ -23,6 +23,9 @@ for ii = 1:N
     end
 end
 
+% imgs = repmat(imgs,1,10);
+% N = size(imgs,2);
+
 %% Compare the images
 ssimMat = zeros(N);
 dupeFiles = zeros(N,1);
@@ -40,7 +43,8 @@ ssimMat = ssimMat + ssimMat';
 
 %% Display very close files for comparison
 
-
+figure(1)
+ax = gca;
 
 for ii = 1:N
     [vals,inds] = sort(ssimMat(ii,:));
@@ -65,8 +69,12 @@ for ii = 1:N
             'FontSize',round(size(imgsDisp{jj+1},1).*0.032));
     end
     
-    montage(imgsDisp);
-    [~] = input('wait');
+    montage(imgsDisp,'Parent',ax);
+    userAns = input('Too Similar?','s');
+    
+    if userAns == 'l'
+        disp(1)
+    end
 end
 
 %% Move Identical Files
