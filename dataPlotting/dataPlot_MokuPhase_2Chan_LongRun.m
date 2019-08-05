@@ -136,7 +136,7 @@ avg = 2;
 
 %%% Chose Which parameters to plot %%%
 % [frequency, phase, amplitude] %
-plotParams = [0, 0, 1];
+plotParams = [1, 0, 0];
 
 
 %%%%% Plot Frequency %%%%%

@@ -69,12 +69,12 @@ end
 numPlot = 1:size(dataOUT,3);
 % numPlot = numFilesIn;
 
-% titles = {'CEP Frequency, Locked, AVERAGE',...
-%     'CEP Frequency, Unlocked, AVERAGE'};
+titles = {'$$f_{OOL}$$, Averaged',...
+    '$$f_{CEP}$$, Averaged'};
 
-titles = {'AOFS Signal, MAXHOLD',...
-    'AOFS Signal, AVERAGE',...
-    'AOFS Signal, FREE RUN'};
+% titles = {'AOFS Signal, MAXHOLD',...
+%     'AOFS Signal, AVERAGE',...
+%     'AOFS Signal, FREE RUN'};
 
 % titles = {'CEP Frequency, Locked, MAXHOLD',...
 %     'CEP Frequency, Locked, AVERAGE',...
@@ -104,7 +104,7 @@ for ii = numPlot
     plot(dataOUT(:,1,ii)/1e6,dataOUT(:,2,ii)-maxVal(ii),...
         'linewidth',3,'color',[33 54 86]/255);
     xlim([min(dataOUT(:,1,ii)/1e6) max(dataOUT(:,1,ii)/1e6)]);
-    ylim([minVal(ii)-maxVal(ii) maxVal(ii)+10-maxVal(ii)]);
+    ylim([minVal(ii)-maxVal(ii) maxVal(ii)+5-maxVal(ii)]);
     
     
     % % Absolute Max Line
@@ -117,31 +117,31 @@ for ii = numPlot
     % format shortG
     % text(82e6,-90,['Beat Signal:  ', num2str(valMHZSpec),' Mhz, ', num2str(maxValSpec), ' dBm'],'FontSize',14,'Color',[.1333 .545 .1333]);
     
-    textUse = {'$f_{CLOCK}$','$f_{REP} - f_{CLOCK}$','$f_{REP}$'};
-    % All lines for peaks
-    for jj = 1:length(pkPos{ii})
-        pos = pkPos{ii}(jj)/1e6;
-        format shortG
-%         line([pos pos],[minVal(ii),pks{ii}(jj)-maxVal(ii)],...
-%             'Color',[1 0 0 .5],...
-%             'LineStyle','--');
-        t = text(pos-5,pks{ii}(jj)+3-maxVal(ii),...
-            [num2str(pkPos{ii}(jj)/1e6,'%.4g'),' Mhz'],...
-            'FontSize',30,...
-            'Color',[0 0 0],...
-            'HorizontalAlignment','center',...
-            'Interpreter','latex');
-        set(t,'Rotation',00);
-    end
+%     textUse = {'$f_{CLOCK}$','$f_{REP} - f_{CLOCK}$','$f_{REP}$'};
+%     % All lines for peaks
+%     for jj = 1:length(pkPos{ii})
+%         pos = pkPos{ii}(jj)/1e6;
+%         format shortG
+% %         line([pos pos],[minVal(ii),pks{ii}(jj)-maxVal(ii)],...
+% %             'Color',[1 0 0 .5],...
+% %             'LineStyle','--');
+%         t = text(pos-5,pks{ii}(jj)+3-maxVal(ii),...
+%             [num2str(pkPos{ii}(jj)/1e6,'%.4g'),' Mhz'],...
+%             'FontSize',30,...
+%             'Color',[0 0 0],...
+%             'HorizontalAlignment','center',...
+%             'Interpreter','latex');
+%         set(t,'Rotation',00);
+%     end
     
 
     
     % Make it look nice
-    xlabel(xLabels{ii},'FontSize',24);
-    ylabel(yLabels{ii},'FontSize',24);
+    xlabel(xLabels{ii},'FontSize',24,'interpreter','latex');
+    ylabel(yLabels{ii},'FontSize',24,'interpreter','latex');
     
     ax.FontSize = 40;
-%     title(titles{ii},'FontSize',40);
+    title(titles{ii},'FontSize',40,'interpreter','latex');
 
     
 end

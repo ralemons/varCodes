@@ -178,33 +178,83 @@ end
 
 %% Special Plots %%
 
-titles = {'Frequency Drift, LOCKED and UNLOCKED'};
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% figure(99);
+% 
+% titles = {'Frequency Drift, $$f_{OOL}$$ and $$f_{CEP}$$'};
+% xLabels = repmat({'Time (min)'},numPlots,1);
+% yLabels = repmat({'$$\Delta \nu$$ (kHz)'},numPlots,1);
+% 
+% % subplot(3,1,3);
+% ax = gca;
+% 
+% lineColors = {[120 137 163]/255,[33 54 86]/255,[133,125,245]/255,[0 0 0]/255};
+% 
+% hold on
+% for ii = 1:numFilesIn
+%     plot(dataOUT(:,1,ii),...
+%         movmean((dataOUT(:,3,ii)-meanVal.freq(ii))/1e3,avg),...
+%         'LineWidth',2,...
+%         'Color',lineColors{ii+1});
+% end
+% hold off
+% 
+% xlim([min(dataOUT(:,1,1)) max(dataOUT(:,1,1))]);
+% ylim([...
+%     ((minVal.freq(2) - (span.freq(2)*.2/2)) - meanVal.freq(2))/1e3...
+%     ((maxVal.freq(2) + (span.freq(2)*.2/2)) - meanVal.freq(2))/1e3...
+%     ]);
+% legend({'$$f_{OOL}$$','$$f_{CEP}$$'},'Location','northeast','interpreter','latex');
+% 
+% 
+% % Make it look nice
+% title(titles{1},'FontSize',30,'interpreter','latex');
+% xlabel(xLabels{1},'FontSize',24,'interpreter','latex');
+% ylabel(yLabels{1},'FontSize',24,'interpreter','latex');
+% 
+% ax.FontSize = 44;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure(98);
+
+titles = {'Frequency Drift, $$f_{OOL}$$ and $$f_{CEP}$$'};
 xLabels = repmat({'Time (min)'},numPlots,1);
-yLabels = repmat({'$$\Delta \nu$$ (kHz)'},numPlots,1);
+yLabels = {'$$\Delta \nu$$ (Hz)','$$\Delta \nu$$ (kHz)'};
+legLabels = {'$$f_{OOL}$$','$$f_{CEP}$$'};
+yScale = [1e1,1e3];
 
-figure(99);
-% subplot(3,1,3);
-ax = gca;
-
-hold on
-plot(dataOUT(:,1,1),...
-    movmean((dataOUT(:,3,1)-meanVal.freq(1))/1e3,avg),...
-    'LineWidth',2);
-plot(dataOUT(:,1,2),...
-    movmean((dataOUT(:,3,2)-meanVal.freq(2))/1e3,avg),...
-    'LineWidth',2);
-hold off
-
-xlim([min(dataOUT(:,1,1)) max(dataOUT(:,1,1))]);
-ylim([...
-    ((minVal.freq(2) - (span.freq(2)*.2/2)) - meanVal.freq(2))/1e3...
-    ((maxVal.freq(2) + (span.freq(2)*.2/2)) - meanVal.freq(2))/1e3...
-    ]);
-legend({'LOCKED','UNLOCKED'},'Location','northeast');
-ax.FontSize = 24;
-
-% Make it look nice
-title(titles{1},'FontSize',30,'interpreter','latex');
-xlabel(xLabels{1},'FontSize',24,'interpreter','latex');
-ylabel(yLabels{1},'FontSize',24,'interpreter','latex');
-
+for ii = 1:numFilesIn
+    subplot(2,1,ii);
+    ax = gca;
+    
+    lineColors = {[33 54 86]/255};
+    
+    plot(dataOUT(:,1,ii),...
+        movmean((dataOUT(:,3,ii)-meanVal.freq(ii))/yScale(ii),avg),...
+        'LineWidth',2,...
+        'Color',lineColors{1});
+    
+    xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
+    ylim([...
+        ((minVal.freq(ii)-(span.freq(ii)*.2/2))-meanVal.freq(ii))/yScale(ii)...
+        ((maxVal.freq(ii)+(span.freq(ii)*.2/2))-meanVal.freq(ii))/yScale(ii)...
+        ]);
+    legend(legLabels{ii},'Location','northeast','interpreter','latex');
+    
+    
+    % Make it look nice
+    ylabel(yLabels{ii},'FontSize',24,'interpreter','latex');
+    
+    if ii == 1
+        title(titles{1},'FontSize',30,'interpreter','latex');
+    end
+    
+    ax.FontSize = 44;
+    fillFig(0,-0.0)
+    
+    if ii < numFilesIn
+        ax.XTick = [];
+    end
+    
+end

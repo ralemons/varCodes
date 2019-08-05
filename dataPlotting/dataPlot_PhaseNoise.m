@@ -28,7 +28,7 @@ fileOrder = {'Only CEP','ULM w/ LOCSET','ULM w/ Phase Shifters','Propagation Noi
 %%%% Frequency Range %%%%%
 
 %%% Select ranges for data analysis
-highPass = .01;
+highPass = 1;
 [~,shift] = min(abs(dataOUT(:,1,1)-highPass));
 if shift ~= 1
     dataOUT(1:shift,:,:) = [];

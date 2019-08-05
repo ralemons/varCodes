@@ -1,5 +1,5 @@
 function [] = fillFig(uFillW,uFillH)
-
+    
 ax = gca;
 outerpos = ax.OuterPosition;
 ti = ax.TightInset;
