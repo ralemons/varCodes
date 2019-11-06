@@ -1,5 +1,4 @@
-%% SSIM function designed to work with greyscale 300 x 300 images
-% 
+%% SSIM function designed to work with properlly processed GenAlg images
 
 function val = slimSSIM(im1,im2)
 
