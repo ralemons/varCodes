@@ -48,18 +48,21 @@ lams(3) = 1/((1/lams(1))+(1/lams(2)));
 
 omegas = 2*pi*c./lams;
 
-crysLen = 2*mm;
+crysLen = 3*mm;
 thetaTST = [0 50];
-[phis(1,:),songFs] = loadSongPhase(songStr,0,3,1,0,0);
+[phis(1,:),songFs] = loadSongPhase(songStr,20,27,-3*pi/4,0,0);
+
+phis(end,1) = 0;
 
 figure(1);
 plot(phis(1,:));
+drawnow
 
 N = length(phis(1,:));
 phis(2,:) = zeros(N,1);
 
 % Find crystal angle for phase matching
-thetaZero = findTheta(lams,thetaTST,[pi 0],crysLen);
+thetaZero = findTheta(lams,thetaTST,[-3*pi/4 0],crysLen);
 
 pEnergy = 1 * uJ / 2;
 pDur = 250 * fs;
@@ -74,29 +77,35 @@ conds = [pField; pField; 0];
 odes = myODEs();
 
 % N = 100;
-tst = zeros(N,1);
-tstVal = zeros(N,3);
+timeVals = zeros(N,1);
+ampVals = zeros(N,1);
 
 for ii = 1:N
     tic
     [T,Y] = ode45(@(t,Y)odes(t,Y,omegas(1),omegas(2),omegas(3),...
         dNL,c,lams(1),lams(2),lams(3),thetaZero,phis(1,ii),phis(2,ii)),...
         tRange, conds);
-    tstVal(ii,:) = Y(end,:);
-    tst(ii) = toc;
+    ampVals(ii) = Y(end,3);
+    timeVals(ii) = toc;
     if mod(ii,round(N/100)) == 0
         disp([num2str( round((ii/N)*100) ),'% complete']);
     end
 end
 
-mean(tst)
-sum(tst)
+disp(['Each iteration took: ', num2str(mean(timeVals)*1000,'%.2f'),' ms'])
+disp(['The total time was: ', num2str(sum(timeVals)/60,'%.2f'),' min'])
+ampVals = convAmp(ampVals);
 
 figure(2);
 plot(T,abs(Y).^2);
+drawnow
 
 figure(3);
-plot(abs(tstVal(:,3)).^2);
+plot(1:length(ampVals),ampVals);
+drawnow
+
+player = audioplayer(ampVals,songFs);
+play(player)
 
 
 function Sys = myODEs()
@@ -134,13 +143,23 @@ end
 
 
 phi = y(startVal:endVal,1);
-phi = (scale*((phi + 1)./max(phi + 1)))+shift;
+phi = (scale*((phi )./max(phi )))+shift;
 
 if exist('plotFlag','var') && plotFlag == 1
     plot(linspace(startVal/Fs,endVal/Fs,length(phi)),phi)
 end
 
 end
+
+function amp = convAmp(amp)
+
+amp = abs(amp).^2;
+
+amp = (( (amp - min(amp)) / (max(amp)-min(amp)) ) * 2) - 1;
+
+end
+
+
 
 
 
