@@ -40,7 +40,7 @@ for ii = 1:numFilesIn
     
     %%%%% Time Section %%%%%
     
-    dataOUT(:,1,ii) = dataOUT(:,1,ii)/60;
+    dataOUT(:,1,ii) = dataOUT(:,1,ii)/60/60;
     
     %%%%% Frequency Section %%%%%
     
@@ -84,11 +84,11 @@ avg = 5;
 
 titles = {'Frequency Drift, LOCKED',...
     'Frequency Drift, UNLOCKED'};
-xLabels = repmat({'Time (min)'},numPlots,1);
+xLabels = repmat({'Time (h)'},numPlots,1);
 % yLabels = repmat({'Frequency (MHz)'},numPlots,1);
-yLabels = {'$$\Delta \nu$$ (Hz)',...
+yLabels = {'$$\Delta \nu$$ (kHz)',...
     '$$\Delta \nu$$ (kHz)'};
-yScale = [1e0,1e3];
+yScale = [1e3,1e3];
 
 % figure(1);
 
@@ -118,63 +118,63 @@ for ii = 1:numPlots
     
 end
 
-% %%%%% Plot Phase %%%%%
-%
-% titles = {'Long Term Phase Drift, LOCKED',...
-%     'Long Term Phase Drift, UNLOCKED'};
-% xLabels = repmat({'Time (min)'},numPlots,1);
-% yLabels = repmat({'!!!!ADD THIS!!!!'},numPlots,1);
-%
-%
-% for jj = 1:numPlots
-%
-%     figure(jj+numFilesIn);
-%     ax = gca;
-%
-%     plot(dataOUT(:,1,jj),dataOUT(:,3,jj));
-%
-%     xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
-%     ylim([...
-%         (minVal.freq(ii) - (span.freq(ii)*.2/2))/1e6...
-%         (maxVal.freq(ii) + (span.freq(ii)*.2/2))/1e6...
-%         ]);
-%     ax.FontSize = 24;
-%
-%     % Make it look nice
-%     title(titles{jj},'FontSize',40,'interpreter','latex');
-%     xlabel(xLabels{jj},'FontSize',34,'interpreter','latex');
-%     ylabel(yLabels{jj},'FontSize',34,'interpreter','latex');
-%
-% end
-%
-% %%%%% Plot Amplitude %%%%%
-%
-% titles = {'Long Term Amplitude Drift, LOCKED',...
-%     'Long Term Amplitude Drift, UNLOCKED'};
-% xLabels = repmat({'Time (min)'},numPlots,1);
-% yLabels = repmat({'Amplitude (V)'},numPlots,1);
-%
-%
-% for kk = 1:numPlots
-%
-%     figure(kk+(2*numFilesIn));
-%     ax = gca;
-%
-%     plot(dataOUT(:,1,kk),dataOUT(:,3,kk));
-%
-%     xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
-%     ylim([...
-%         (minVal.freq(ii) - (span.freq(ii)*.2/2))/1e6...
-%         (maxVal.freq(ii) + (span.freq(ii)*.2/2))/1e6...
-%         ]);
-%     ax.FontSize = 24;
-%
-%     % Make it look nice
-%     title(titles{kk},'FontSize',40,'interpreter','latex');
-%     xlabel(xLabels{kk},'FontSize',34,'interpreter','latex');
-%     ylabel(yLabels{kk},'FontSize',34,'interpreter','latex');
-%
-% end
+%%%%% Plot Phase %%%%%
+
+titles = {'Long Term Phase Drift, LOCKED',...
+    'Long Term Phase Drift, UNLOCKED'};
+xLabels = repmat({'Time (min)'},numPlots,1);
+yLabels = repmat({'!!!!ADD THIS!!!!'},numPlots,1);
+
+
+for jj = 1:numPlots
+
+    figure(jj+numFilesIn);
+    ax = gca;
+
+    plot(dataOUT(:,1,jj),dataOUT(:,3,jj));
+
+    xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
+    ylim([...
+        (minVal.freq(ii) - (span.freq(ii)*.2/2))/1e6...
+        (maxVal.freq(ii) + (span.freq(ii)*.2/2))/1e6...
+        ]);
+    ax.FontSize = 24;
+
+    % Make it look nice
+    title(titles{jj},'FontSize',40,'interpreter','latex');
+    xlabel(xLabels{jj},'FontSize',34,'interpreter','latex');
+    ylabel(yLabels{jj},'FontSize',34,'interpreter','latex');
+
+end
+
+%%%%% Plot Amplitude %%%%%
+
+titles = {'Long Term Amplitude Drift, LOCKED',...
+    'Long Term Amplitude Drift, UNLOCKED'};
+xLabels = repmat({'Time (min)'},numPlots,1);
+yLabels = repmat({'Amplitude (V)'},numPlots,1);
+
+
+for kk = 1:numPlots
+
+    figure(kk+(2*numFilesIn));
+    ax = gca;
+
+    plot(dataOUT(:,1,kk),dataOUT(:,3,kk));
+
+    xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
+    ylim([...
+        (minVal.freq(ii) - (span.freq(ii)*.2/2))/1e6...
+        (maxVal.freq(ii) + (span.freq(ii)*.2/2))/1e6...
+        ]);
+    ax.FontSize = 24;
+
+    % Make it look nice
+    title(titles{kk},'FontSize',40,'interpreter','latex');
+    xlabel(xLabels{kk},'FontSize',34,'interpreter','latex');
+    ylabel(yLabels{kk},'FontSize',34,'interpreter','latex');
+
+end
 
 %% Special Plots %%
 

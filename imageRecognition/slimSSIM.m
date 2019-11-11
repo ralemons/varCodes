@@ -27,6 +27,6 @@ s12 = conv2(im1.*im2,window,'valid') - avg12;
 mat = ((2*avg12 + c(1)).*(2*s12 + c(2)))./...
     ((avg11 + avg22 + c(1)).*(s11 + s22 + c(2)));
 
-val = mean2(mat);
+val = mean(mat(:));
 
 end

@@ -22,11 +22,11 @@ for ii = 1:numFilesIn
     avgVal = 5;
     dataOUT(:,2,ii) = movmean(dataOUT(:,2,ii),avgVal);
     
-    % Force Ceil or Floor for data
-    floorForce = -75;
-    dataOUT( dataOUT(:,2,ii)<floorForce ,2,ii) = floorForce;
-    ceilForce = 0;
-    dataOUT( dataOUT(:,2,ii)>ceilForce ,2,ii) = ceilForce;
+%     % Force Ceil or Floor for data
+%     floorForce = -75;
+%     dataOUT( dataOUT(:,2,ii)<floorForce ,2,ii) = floorForce;
+%     ceilForce = 0;
+%     dataOUT( dataOUT(:,2,ii)>ceilForce ,2,ii) = ceilForce;
         
     % Important Values
     minVal(ii).dBm = min(dataOUT(:,2,ii));
@@ -42,10 +42,10 @@ end
 numPlot = 1:size(dataOUT,3);
 
 
-titles = {'Out Of Loop Sprectrum',...
+titles = {'Tangerine Spectrum',...
     'Out Of Loop Spectrum'};
 xLabels = repmat({'Wavelength (nm)'},numFilesIn+1,1);
-yLabels = repmat({'Power (dBm)'},numFilesIn+1,1);
+yLabels = repmat({'Power (uW)'},numFilesIn+1,1);
 
 
 
@@ -54,10 +54,10 @@ for ii = numPlot
     ax = gca;
     
     
-    plot(dataOUT(:,1,ii),dataOUT(:,2,ii),...
+    plot(dataOUT(:,1,ii),dataOUT(:,2,ii)*10^6,...
         'linewidth',3,'color',[33 54 86]/255);
     xlim([min(dataOUT(:,1,ii)) max(dataOUT(:,1,ii))]);
-    ylim([minVal(ii).dBm maxVal(ii).dBm+10]);
+%     ylim([minVal(ii).dBm maxVal(ii).dBm+10]);
     
 
     

@@ -69,8 +69,8 @@ end
 numPlot = 1:size(dataOUT,3);
 % numPlot = numFilesIn;
 
-titles = {'$$f_{OOL}$$, Averaged',...
-    '$$f_{CEP}$$, Averaged'};
+% titles = {'$$f_{OOL}$$, Averaged',...
+%     '$$f_{CEP}$$, Averaged'};
 
 % titles = {'AOFS Signal, MAXHOLD',...
 %     'AOFS Signal, AVERAGE',...
@@ -141,7 +141,7 @@ for ii = numPlot
     ylabel(yLabels{ii},'FontSize',24,'interpreter','latex');
     
     ax.FontSize = 40;
-    title(titles{ii},'FontSize',40,'interpreter','latex');
+%     title(titles{ii},'FontSize',40,'interpreter','latex');
 
     
 end
