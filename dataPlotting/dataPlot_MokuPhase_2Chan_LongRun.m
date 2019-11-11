@@ -3,7 +3,7 @@
 
 %% Run this section find the files
 clear;
-close all;
+% close all;
 
 % Read in files
 [fileName,filePath] = uigetfile('D:\CEP\CSVs\*.*');
@@ -12,7 +12,6 @@ fileStr = fullfile(filePath,fileName);
 % Turn off warning about number of peaks. QOL change, can be removed.
 warning('off','signal:findpeaks:largeMinPeakHeight');
 
-
 %% Load the data
 
 % Changed up so the data is only loaded in to memory once
@@ -20,7 +19,7 @@ dataOUT = dataImport_Moku(fileStr);
 numChans = (size(dataOUT,2)-1)/5;
 
 % With this indexing you get frequency, phase, I, Q, amplitude
-% like so vars(chan,variable) ie. vars(2,3) = column 9 = channel 2's I
+% Usage = vars(chan,variable) ie. vars(2,3) = row 2, column 3 = Chan 2's I
 chans = {'chan1','chan2'};
 vars = [2 3 4 5 6;7 8 9 10 11];
 
@@ -30,7 +29,7 @@ dataOUT(:,1) = dataOUT(:,1)/60/60; % Choose unit of time ie. seconds/60/60 = hou
 
 
 %%%%% Remove Set frequency %%%%%
-for ii = length(chans)
+for ii = 1:length(chans)
     setFreq.(chans{ii}) = dataOUT(1,vars(ii,1));
 end
 dataOUT(:,2:5) = dataOUT(:,3:6); % Shift Columns
@@ -46,21 +45,25 @@ for ii = 1:length(chans)
     dataOUT(out,vars(ii,1)) = mean(dataOUT(:,vars(ii,1)));
 end
 
+%%%%% Unwrap large phase jumps %%%%%
+for ii = 1:length(chans)
+    dataOUT(:,vars(ii,2)) = unwrap(dataOUT(:,vars(ii,2)),10^6);
+end
+
 
 clear out
-
-
-
 
 %% Process the data
 
 
 % Clear and pre-allocate phase array info
-clear vals phaseOUT
+clear vals phaseOUT dateAndTimes
 vals = zeros(length(chans),2);
 phaseOUT = zeros(length(dataOUT(:,1)),length(chans));
 
-
+startTime = datetime(2019,08,15,11,20,00);
+endTime = startTime + hours(24);
+dateAndTimes = linspace(startTime,endTime,length(dataOUT(:,1)))';
 
 %%%%% Perform Operations for Each Channel %%%%%
 for ii = 1:numChans % second loop to gather the second channel data
@@ -128,11 +131,11 @@ for jj = 1:2
     allan(alStruc(jj),alStruc(jj).taus,alStruc(jj).name);
 end
 
-
 %% Run this section to plot the data
 
 chansPlot = 1:numChans;
 avg = 2;
+numTicks = 8;
 
 %%% Chose Which parameters to plot %%%
 % [frequency, phase, amplitude] %
@@ -143,12 +146,14 @@ plotParams = [1, 0, 0];
 if plotParams(1) == 1
     
     
-    titles = {sprintf('Frequency Drift, Averaging = %d, LOCKED',avg)};
+    titles = {'Frequency Drift $f_{AOFS}$, w/ longterm PID control',...
+        sprintf('Frequency Drift, Averaging = %d, $f_{OOL}$',avg)};
     %     xLabel = repmat({'Time (h)'},1,numChans);
     xLabel = repmat({'Time (h)'},1,numChans);
-    yLabel = repmat({'$$\Delta \nu$$ (Hz)'},1,numChans);
+%     yLabel = repmat({'$$\Delta \nu$$ (Hz)'},1,numChans);
+    yLabel = {'$$\Delta \nu$$ (kHz)','$$\Delta \nu$$ (Hz)'};
     
-    yScale = [1e0,1e0];
+    yScale = [1e3,1e0];
     lineW = [1,1];
     
     
@@ -162,7 +167,12 @@ if plotParams(1) == 1
             (dataOUT(:,vars(ii,1))-meanVal.(chans{ii}).freq)/yScale(ii),...
             avg),...
             'LineWidth', lineW(ii),'color',[33 54 86]/255);
-        
+
+%         plot(dateAndTimes,...
+%             movmean(...
+%             (dataOUT(:,vars(ii,1))-meanVal.(chans{ii}).freq)/yScale(ii),...
+%             avg),...
+%             'LineWidth', lineW(ii),'color',[33 54 86]/255);        
         
         rmsFreq = rms(...
             movmean(...
@@ -174,15 +184,19 @@ if plotParams(1) == 1
         
         
         
-        
+
+%         xlim([dateAndTimes(1) dateAndTimes(end)]);
+%         xtickangle(60);
+%         xticks(round(dataOUT(1:floor(length(dataOUT(:,1))/numTicks):end,1)));
         xlim([min(dataOUT(:,1)) max(dataOUT(:,1))]);
+
         
         
         % Make it look nice
         xlabel(xLabel{ii},'FontSize',24,'Interpreter','latex');
         ylabel(yLabel{ii},'FontSize',24,'Interpreter','latex');
-        ax.FontSize = 40;
-        %         title(titles,'FontSize',40,'Interpreter','latex');
+        ax.FontSize = 50;
+%         title(titles{ii},'FontSize',40,'Interpreter','latex');
         %         legend({'No Averaging','Averaging = 5'},'Location','northeast');
     end
     
@@ -195,7 +209,8 @@ if plotParams(2) == 1
     
     
     
-    titles = {sprintf('Phase Drift, Averaging = %d, LOCKED',avg)};
+    titles = {sprintf('Phase Drift, Averaging = %d, $f_{AOFS}$',avg),...
+        sprintf('Phase Drift, Averaging = %d, $f_{OOL}$',avg)};
     %     xLabel = repmat({'Time (h)'},1,numChans);
     xLabel = repmat({'Time (min)'},1,numChans);
     yLabel = repmat({'Phase (rad)'},1,numChans);
@@ -228,7 +243,7 @@ if plotParams(2) == 1
         xlabel(xLabel{ii},'FontSize',24,'Interpreter','latex');
         ylabel(yLabel{ii},'FontSize',24,'Interpreter','latex');
         ax.FontSize = 34;
-        title(titles,'FontSize',40,'Interpreter','latex');
+        title(titles{ii},'FontSize',40,'Interpreter','latex');
         %         legend({'No Averaging','Averaging = 5'},'Location','northeast');
         
     end
@@ -239,7 +254,8 @@ end
 %%%%% Plot Amplitude %%%%%
 if plotParams(3) == 1
     
-    titles = {sprintf('Phase Drift, Averaging = %d, LOCKED',avg)};
+    titles = {sprintf('Amplitude Drift, Averaging = %d, $f_{AOFS}$',avg),...
+        sprintf('Amplitude Drift, Averaging = %d, $f_{OOL}$',avg)};
     %     xLabel = repmat({'Time (h)'},1,numChans);
     xLabel = repmat({'Time (min)'},1,numChans);
     yLabel = repmat({'Amplitude (mV)'},1,numChans);
@@ -249,7 +265,7 @@ if plotParams(3) == 1
     
     
     for ii = chansPlot
-        figure(ii);
+        figure(ii+numChans*2);
         ax = gca;
         
         plot(dataOUT(:,1),...
@@ -277,7 +293,7 @@ if plotParams(3) == 1
         xlabel(xLabel{ii},'FontSize',24,'Interpreter','latex');
         ylabel(yLabel{ii},'FontSize',24,'Interpreter','latex');
         ax.FontSize = 40;
-        %         title(titles,'FontSize',40,'Interpreter','latex');
+        title(titles{ii},'FontSize',40,'Interpreter','latex');
         %         legend({'No Averaging','Averaging = 5'},'Location','northeast');
     end
     

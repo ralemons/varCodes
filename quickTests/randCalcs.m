@@ -1,5 +1,7 @@
 %% Constants
 
+clear
+
 % Length
 m = 10^0; mm = 10^-3*m; cm = 10^-2*m; um = 10^-6*m; nm = 10^-9*m; angs = 10^-10*m; km = 10^3*m;
 % Mass
@@ -23,5 +25,11 @@ c = 299792458*(m/s); eps0 = 8.854187817*10^-12*(F/m); re = 2.82*10^-15*(m);
 e = 1.602*10^-19*(C);
 
 %% Calcs
+
+syms x y z field
+
+tmp{1} = x^2;
+tmp{2} = x+y;
+
 
 
