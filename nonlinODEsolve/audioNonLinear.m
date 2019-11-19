@@ -6,7 +6,7 @@ m = 10^0; mm = 10^-3*m; um = 10^-6*m; nm = 10^-9*m;
 % Time
 s = 10^0; ps = 10^-12*s; fs = 10^-15*s;
 % Energy
-J = 10^0; uJ = 10^-6 * J; nJ = 10^-12 * J;
+J = 10^0; uJ = 10^-6 * J; nJ = 10^-9 * J;
 % Physics Constants
 c = 299792458; eps0 = 8.854187817*10^-12;
 
@@ -48,27 +48,40 @@ lams(3) = 1/((1/lams(1))+(1/lams(2)));
 
 omegas = 2*pi*c./lams;
 
-crysLen = 3*mm;
+crysLen = 2*mm;
 thetaTST = [0 50];
-[phis(1,:),songFs] = loadSongPhase(songStr,20,27,-3*pi/4,0,0);
-
+[phis(1,:),songFs] = loadSongPhase(songStr,24,25,-9*pi/4,0,0);
 phis(end,1) = 0;
+
+% phis(1,:) = 0;
 
 figure(1);
 plot(phis(1,:));
 drawnow
 
 N = length(phis(1,:));
+
+
 phis(2,:) = zeros(N,1);
 
-% Find crystal angle for phase matching
-thetaZero = findTheta(lams,thetaTST,[-3*pi/4 0],crysLen);
+clear saveData
+M = 1;
+saveData = struct('indVar','matching angle','var',zeros(1,M),'songAmp',zeros(N,M),'T',{cell(1,M)},'Y',{cell(1,M)});
 
-pEnergy = 1 * uJ / 2;
+options = odeset('RelTol',1e-4,'AbsTol',1e-6);
+
+% Find crystal angle for phase matching
+for jj = 1:M
+thetaZero = findTheta(lams,thetaTST,[-6*pi/4 0],crysLen);
+saveData.var(1,jj) = thetaZero;
+    
+pEnergy = 1 * uJ;
+% saveData.var(1,jj) = pEnergy;
+
 pDur = 250 * fs;
 pRad = 100 * um;
 
-pInten = ((2*sqrt(log(16)))/((pi^(3/2))*(pRad^2)*(pDur)))*pEnergy;
+pInten = ((2*sqrt(log(16)))./((pi^(3/2)).*(pRad.^2).*(pDur))).*pEnergy;
 pField = sqrt( (pInten)./(2*c*eps0*nO(lams(1))) );
 
 tRange = [0 crysLen];
@@ -84,7 +97,7 @@ for ii = 1:N
     tic
     [T,Y] = ode45(@(t,Y)odes(t,Y,omegas(1),omegas(2),omegas(3),...
         dNL,c,lams(1),lams(2),lams(3),thetaZero,phis(1,ii),phis(2,ii)),...
-        tRange, conds);
+        tRange, conds,options);
     ampVals(ii) = Y(end,3);
     timeVals(ii) = toc;
     if mod(ii,round(N/100)) == 0
@@ -94,7 +107,13 @@ end
 
 disp(['Each iteration took: ', num2str(mean(timeVals)*1000,'%.2f'),' ms'])
 disp(['The total time was: ', num2str(sum(timeVals)/60,'%.2f'),' min'])
+
+disp(abs(Y(end,3)).^2)
+
 ampVals = convAmp(ampVals);
+saveData.songAmp(:,jj) = ampVals;
+saveData.T{jj} = T;
+saveData.Y{jj} = abs(Y).^2;
 
 figure(2);
 plot(T,abs(Y).^2);
@@ -104,9 +123,10 @@ figure(3);
 plot(1:length(ampVals),ampVals);
 drawnow
 
-player = audioplayer(ampVals,songFs);
+player = audioplayer(ampVals,songFs); %#ok<TNMLP>
 play(player)
 
+end
 
 function Sys = myODEs()
 syms a1(t) a2(t) a3(t) w1 w2 w3 dNL c l1 l2 l3 th0 ph1 ph2 Y t
@@ -155,7 +175,11 @@ function amp = convAmp(amp)
 
 amp = abs(amp).^2;
 
-amp = (( (amp - min(amp)) / (max(amp)-min(amp)) ) * 2) - 1;
+if length(amp) > 1
+    amp = (( (amp - min(amp)) / (max(amp)-min(amp)) ) * 2) - 1;
+else
+    amp = amp/max(amp);
+end
 
 end
 
