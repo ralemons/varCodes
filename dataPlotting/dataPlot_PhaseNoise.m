@@ -309,7 +309,7 @@ ax.XTickLabel = cellstr(num2str(round(log10(xTicks)), '10^%d'));
 % ax.YTick = yTicks;
 % ax.YTickLabel = cellstr(num2str(round(log10(yTicks)), '10^%d'));
 
-ax.FontSize = 50;
+ax.FontSize = 60;
 % title(titles{1},'FontSize',40,'Interpreter','latex');
 
 

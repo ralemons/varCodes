@@ -115,7 +115,7 @@ end
 for jj = 1:numChans
     
     alStruc(jj).freq = dataOUT(:,vars(jj,1))/meanVal.(chans{jj}).freq-1;
-    alStruc(jj).rate = 33;
+    alStruc(jj).rate = length(dataOUT(:,1))/24/60/60
     
     tmp = (1/alStruc(jj).rate)*logspace(0,6,50);
     tmp(tmp > 10^4) = [];
@@ -130,6 +130,32 @@ alStruc(2).name = 'f_{LO}';
 for jj = 1:2
     allan(alStruc(jj),alStruc(jj).taus,alStruc(jj).name);
 end
+
+%% Phase Noise
+
+% pVec = zeros(size(dataOUT(:,1),2),2);
+% 
+% for ii = 1:numChans
+%     pVec(:,ii) = cumtrapz(dataOUT(:,1) , (dataOUT(:,vars(ii,1))-meanVal.(chans{ii}).freq));
+% end
+
+N = length(dataOUT(:,1));
+
+sampRate = length(dataOUT(:,1))/24/60/60;
+freqVec = sampRate*((0:N/2)/N);
+
+ii = 2;
+fftTime = fft( dataOUT(:,vars(ii,1))- meanVal.(chans{ii}).freq );
+fftTime = abs(fftTime/N);
+fftTime = fftTime(1:N/2+1);
+fftTime(2:end-1) = 2*fftTime(2:end-1);
+
+fftPhase = fftTime' .*( (meanVal.(chans{ii}).freq^2)./freqVec.^2);
+
+hold on
+loglog(freqVec,fftTime)
+hold off
+
 
 %% Run this section to plot the data
 
@@ -195,7 +221,7 @@ if plotParams(1) == 1
         % Make it look nice
         xlabel(xLabel{ii},'FontSize',24,'Interpreter','latex');
         ylabel(yLabel{ii},'FontSize',24,'Interpreter','latex');
-        ax.FontSize = 50;
+        ax.FontSize = 60;
 %         title(titles{ii},'FontSize',40,'Interpreter','latex');
         %         legend({'No Averaging','Averaging = 5'},'Location','northeast');
     end

@@ -251,7 +251,7 @@ for ii = 1:numFilesIn
     end
     
     ax.FontSize = 44;
-    fillFig(0,-0.0)
+%     fillFig(0,-0.0)
     
     if ii < numFilesIn
         ax.XTick = [];
