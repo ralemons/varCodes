@@ -4,14 +4,15 @@ clear
 % Length
 m = 10^0; mm = 10^-3*m; um = 10^-6*m; nm = 10^-9*m;
 % Time
-s = 10^0; ps = 10^-12*s; fs = 10^-15*s;
+s = 10^0; ps = 10^-12*s; fs = 10^-15*s; Hz = 1/s;
 % Energy
 J = 10^0; uJ = 10^-6 * J; nJ = 10^-9 * J;
 % Physics Constants
 c = 299792458; eps0 = 8.854187817*10^-12;
 
 % Run Parameters
-songStr = 'Intro.mp3';
+% songStr = 'Intro.mp3';
+fileStr = 'C:\Users\rlemons\Documents\GitHub\varCodes\nonlinODEsolve\bboShift.m';
 
 %% Equations
 
@@ -28,10 +29,11 @@ nE_Theta(lam,theta) = sqrt( 1/ (cosd(theta)^2/nO(lam)^2 + sind(theta)^2/nE(lam)^
 phi0o(lam,l) = (2*pi/lam) * nO(lam) * l;
 phi0e(lam,l,theta) = (2*pi/lam) * nE_Theta(lam,theta) * l;
 
+if ~isfile(fileStr)
 deltaKL = matlabFunction(...
     phi0o(lam1,l) + phi0o(lam2,l) - phi0e(lam3,l,theta) + (phi1*l) + (phi2*l),...
-    'Vars',{lam1,lam2,lam3,theta,phi1,phi2,l},'File','bboShift');
-
+    'Vars',{lam1,lam2,lam3,theta,phi1,phi2,l},'File',fileStr);
+end
 
 nO = matlabFunction(nO,'Vars',{lam});
 nE_Theta = matlabFunction(nE_Theta,'Vars',{lam,theta});
@@ -50,14 +52,45 @@ omegas = 2*pi*c./lams;
 
 crysLen = 2*mm;
 thetaTST = [0 50];
-[phis(1,:),songFs] = loadSongPhase(songStr,24,25,-9*pi/4,0,0);
-phis(end,1) = 0;
+
+useSin = 0;
+
+if exist('songStr','var')
+    
+    [phis(1,:),sigFs] = loadSongPhase(songStr,24,25,-9*pi/4,0,0);
+    phis(1,end) = 0;
+    
+elseif useSin
+    
+    sigFs = 100 * Hz;
+    
+    len = 20;
+    scale = 3*pi;
+    shift = 0;
+    x = 0:1/sigFs:len;
+    
+    phis(1,:) = (scale*sin(2*pi*x/len))-shift;
+    phis(1,end) = 0;
+    
+else
+    
+    Str = 'This is my test'; %#ok<*UNRCH>
+    Bin = reshape(dec2bin(Str,8).',1,[])-'0';
+    Bin = interpBin(Bin,30000);
+    
+    sigFs = 100 * Hz;
+    scale = 0*pi;
+    shift = 0;
+    
+    phis(1,:) = (scale*Bin)+shift;
+    
+end
 
 % phis(1,:) = 0;
 
-figure(1);
-plot(phis(1,:));
-drawnow
+% figure(1);
+% plot(phis(1,:));
+% drawnow
 
 N = length(phis(1,:));
 
@@ -66,13 +99,13 @@ phis(2,:) = zeros(N,1);
 
 clear saveData
 M = 1;
-saveData = struct('indVar','matching angle','var',zeros(1,M),'songAmp',zeros(N,M),'T',{cell(1,M)},'Y',{cell(1,M)});
+saveData = struct('indVar','matching angle','var',zeros(1,M),'sigAmp',zeros(N,M),'T',{cell(1,M)},'Y',{cell(1,M)});
 
 options = odeset('RelTol',1e-4,'AbsTol',1e-6);
 
 % Find crystal angle for phase matching
 for jj = 1:M
-thetaZero = findTheta(lams,thetaTST,[-6*pi/4 0],crysLen);
+thetaZero = findTheta(lams,thetaTST,[-scale/2 0],crysLen);
 saveData.var(1,jj) = thetaZero;
     
 pEnergy = 1 * uJ;
@@ -108,10 +141,10 @@ end
 disp(['Each iteration took: ', num2str(mean(timeVals)*1000,'%.2f'),' ms'])
 disp(['The total time was: ', num2str(sum(timeVals)/60,'%.2f'),' min'])
 
-disp(abs(Y(end,3)).^2)
+normAmp = 0;
+ampVals = convAmp(ampVals,normAmp);
 
-ampVals = convAmp(ampVals);
-saveData.songAmp(:,jj) = ampVals;
+saveData.sigAmp(:,jj) = ampVals;
 saveData.T{jj} = T;
 saveData.Y{jj} = abs(Y).^2;
 
@@ -123,19 +156,21 @@ figure(3);
 plot(1:length(ampVals),ampVals);
 drawnow
 
-player = audioplayer(ampVals,songFs); %#ok<TNMLP>
-play(player)
+if normAmp
+    player = audioplayer(ampVals,sigFs); %#ok<TNMLP>
+    play(player)
+end
 
 end
 
 function Sys = myODEs()
 syms a1(t) a2(t) a3(t) w1 w2 w3 dNL c l1 l2 l3 th0 ph1 ph2 Y t
 ode1 = diff(a1) == ((2i*w1*dNL)/c)*a3*conj(a2)*...
-    exp(1i*bboShift(l1,l2,l3,th0,ph1,ph2,t));
+    exp(1i*bboShift(l1,l2,l3,th0,ph1,ph2,t,1));
 ode2 = diff(a2) == ((2i*w2*dNL)/c)*a3*conj(a1)*...
-    exp(1i*bboShift(l1,l2,l3,th0,ph1,ph2,t));
+    exp(1i*bboShift(l1,l2,l3,th0,ph1,ph2,t,2));
 ode3 = diff(a3) == ((2i*w3*dNL)/c)*a1*a2*...
-    exp(1i*bboShift(l1,l2,l3,th0,ph1,ph2,t));
+    exp(1i*bboShift(l1,l2,l3,th0,ph1,ph2,t,3));
 [ODE,~] = odeToVectorField(ode1, ode2, ode3);
 Sys = matlabFunction(ODE, 'Vars', {t, Y, w1, w2, w3, dNL, c, l1, l2, l3, th0, ph1, ph2});
 end
@@ -146,7 +181,7 @@ function y = findTheta(lams,thetaTst,phis,crysLen)
 y = fzero(@fun,thetaTst,optimset('Display','off'));
 
     function val = fun(theta)
-        val = bboShift(lams(1),lams(2),lams(3),theta,phis(1),phis(2),crysLen);
+        val = bboShift(lams(1),lams(2),lams(3),theta,phis(1),phis(2),crysLen,3);
     end
 
 end
@@ -171,19 +206,33 @@ end
 
 end
 
-function amp = convAmp(amp)
+function amp = convAmp(amp,normFlag)
 
 amp = abs(amp).^2;
 
-if length(amp) > 1
-    amp = (( (amp - min(amp)) / (max(amp)-min(amp)) ) * 2) - 1;
-else
-    amp = amp/max(amp);
+if normFlag
+    if length(amp) > 1
+        amp = (( (amp - min(amp)) / (max(amp)-min(amp)) ) * 2) - 1;
+    else
+        amp = amp/max(amp);
+    end
+end
+
+
+
+end
+
+function out = interpBin(bin,newLen)
+
+N = length(bin);
+multFac = ceil(newLen/N);
+out = zeros(1,N*multFac);
+
+for ii = 1:N
+    out( 1, 1+(multFac*(ii-1)):ii*multFac) = bin(ii);
 end
 
 end
-
-
 
 
 
