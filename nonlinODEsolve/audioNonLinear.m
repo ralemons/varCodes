@@ -12,7 +12,7 @@ c = 299792458; eps0 = 8.854187817*10^-12;
 
 % Run Parameters
 % songStr = 'Intro.mp3';
-fileStr = 'C:\Users\rlemons\Documents\GitHub\varCodes\nonlinODEsolve\bboShift.m';
+fileStr = '~/Documents/GitHub/varCodes/nonlinODEsolve/bboShift1.m';
 
 %% Equations
 
@@ -31,7 +31,7 @@ phi0e(lam,l,theta) = (2*pi/lam) * nE_Theta(lam,theta) * l;
 
 if ~isfile(fileStr)
 deltaKL = matlabFunction(...
-    phi0o(lam1,l) + phi0o(lam2,l) - phi0e(lam3,l,theta) + (phi1*l) + (phi2*l),...
+    phi0o(lam1,l) + phi0o(lam2,l) - phi0e(lam3,l,theta) + (phi2) + (phi2),...
     'Vars',{lam1,lam2,lam3,theta,phi1,phi2,l},'File',fileStr);
 end
 
@@ -76,10 +76,10 @@ else
     
     Str = 'This is my test'; %#ok<*UNRCH>
     Bin = reshape(dec2bin(Str,8).',1,[])-'0';
-    Bin = interpBin(Bin,30000);
+    Bin = interpBin(Bin,2000);
     
     sigFs = 100 * Hz;
-    scale = 0*pi;
+    scale = pi/2;
     shift = 0;
     
     phis(1,:) = (scale*Bin)+shift;

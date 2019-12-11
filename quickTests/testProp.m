@@ -4,7 +4,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear;
-close all;
 clc;
 
 % Units are in um throughout, including the initial beam properties
@@ -14,12 +13,12 @@ cm = 10^-2 * m;
 um = 10^-6 * m;
 km = 10^3 * m;
 
-z =  25 * m; % Distance to Propagate
+z =  20 * m; % Distance to Propagate
 lambda = 1.5 * um; % Wavelength of light
 
 %% Beam Creation
 
-beam = beamPropagation2D(lambda,3*cm,3*cm,2^10,'hex');
+beam = beamPropagation2D(lambda,5*cm,5*cm,2^12,'hex');
 beamBak = beam.outputProperties2D('');
 
 %% Prop and/or Plot
@@ -30,15 +29,21 @@ tmp = beam.outputProperties2D('hex');
 tmp.hex_BeamsOn = [1,1,1,1,1,1,1];
 % tmp.hex_AmpBeams = [1,.7,.7,1,1,1,.7];
 % tmp.hex_PhaseOffset = [0,0,0,0,pi,pi,pi]+pi/6;
-% tmp.hex_PhaseOffset = [0,pi,0,pi,0,pi,0]+pi/6;
+tmp.hex_PhaseOffset = [0,-pi/2,-pi,-pi/2,-pi,-pi/2,-pi]+pi/4;
 % tmp.hex_PhaseOffset = [0,0,0,0,pi,0,0]+pi/6;
 % tmp.hex_PhaseCurve = repmat(-1.5*m,1,7);
+beam.gen_nPlotPoints = 400;
 beam.hex_InitialBeamDef2D(tmp);
+
+f = figure(1);
+clf
 
 ax1 = subplot(2,2,1);
 beam.plotField2D(beam.field_fList,'abs')
+fillFig(0,0)
 ax2 = subplot(2,2,2);
 beam.plotField2D(beam.field_fList,'angle')
+fillFig(0,0)
 
 
 [beam.field_fList,beam.field_FList] = beam.forwardProp_FreeSpace2D(z);
@@ -47,8 +52,10 @@ beam.plotField2D(beam.field_fList,'angle')
 
 ax3 = subplot(2,2,3);
 beam.plotField2D(beam.field_fList,'abs')
+fillFig(0,0)
 ax4 = subplot(2,2,4);
 beam.plotField2D(beam.field_fList,'angle')
+fillFig(0,0)
 
 
 % folder = 'D:\ULM\Beam Shaping\Sim Data\';
