@@ -180,25 +180,25 @@ title('\Sigma S_i^2','Interpreter','tex')
 
 
 %% Write out the data to csv
-
-nRows = numel(S_num(:,:,1));
-
-% The out var is 6 diminsioned to work with the poincare.m function from
-% the matlab file exchange.
-out = zeros(nRows,6);
-out(:,1) = 1:nRows;
-for ii = 1:4
-    tmp = S_num(:,:,ii);
-    out(:,ii+1) = tmp(:);   
-end
-
-% Auto save to a file name based on in the input folder
-tmp = split(filePath,'\');
-tmp = tmp{end};
-fileOutPath = fullfile('D:\ULM\Polarization\Results\',[tmp '.csv']);
-
-writematrix(out,fileOutPath); % You can then load this directly by the .m
-
+% 
+% nRows = numel(S_num(:,:,1));
+% 
+% % The out var is 6 diminsioned to work with the poincare.m function from
+% % the matlab file exchange.
+% out = zeros(nRows,6);
+% out(:,1) = 1:nRows;
+% for ii = 1:4
+%     tmp = S_num(:,:,ii);
+%     out(:,ii+1) = tmp(:);   
+% end
+% 
+% % Auto save to a file name based on in the input folder
+% tmp = split(filePath,'\');
+% tmp = tmp{end};
+% fileOutPath = fullfile('D:\ULM\Polarization\Results\',[tmp '.csv']);
+% 
+% writematrix(out,fileOutPath); % You can then load this directly by the .m
+% 
 
 %% Plot the polarization ellipses over the full image of the beam
 

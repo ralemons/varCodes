@@ -11,6 +11,7 @@ Y = 1:div:size(S,1);
 % Scales image and places it on grid for the ellipses to plot on
 figure(fignum)
 imagesc([0 size(S,2)+1],[0 size(S,1)+1], fullImage );
+axis square
 
 % ROI choice and plotting
 if chooseROI
