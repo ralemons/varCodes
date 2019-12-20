@@ -147,6 +147,16 @@ end
 S(:,:,5) = sum( S(:,:,2:4).^2 , 3);
 S_num(:,:,5) = sum( S_num(:,:,2:4).^2 , 3);
 
+% tmp = S(:,:,5);
+% tmp_num = S_num(:,:,5);
+% 
+% range = .2;
+% tmp(tmp<(1+range) & tmp>(1-range)) = 100;
+% tmp_num(tmp_num<(1+range) & tmp_num>(1-range)) = 100;
+% 
+% S(:,:,5) = tmp;
+% S_num(:,:,5) = tmp_num;
+
 % Plot the stokes parameter
 figure(1)
 for ii = 1:3
@@ -202,7 +212,7 @@ S_polar = S_num(:,:,2:4);
 fullIm = dataIN(:,:,1);
 
 div = 2; % Divides number of MP by this to choose how many MP to plot
-scale = 45; % How big each arrrow is
+scale = 75; % How big each arrrow is
 arrowMove = 1200; % How far the arrow is along the circle
 fignum = 2; % What the number of the figure you create is
 chooseROI = 1; % Pulls up selectable ROI if 1, plot full image if 0 

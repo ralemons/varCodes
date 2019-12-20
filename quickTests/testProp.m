@@ -13,7 +13,6 @@ cm = 10^-2 * m;
 um = 10^-6 * m;
 km = 10^3 * m;
 
-z =  10 * m; % Distance to Propagate
 lambda = 1.5 * um; % Wavelength of light
 
 %% Beam Creation
@@ -25,20 +24,30 @@ beamBak = beam.outputProperties2D('');
 
 beam.inputProperties2D(beamBak);
 
+z =  20 * m; % Distance to Propagate
+
 tmp = beam.outputProperties2D('hex');
-tmp.hex_BeamsOn = [1,1,1,1,1,1,1];
-tmp.hex_PhaseOffset = [0,0,0,0,0,0,pi]+pi/4;
+% tmp.hex_BeamsOn = [0,1,1,1,1,1,1];
+tmp.hex_PhaseOffset = [0,0,0,0,0,0,0] + pi/4;
+% tmp.hex_PhaseCurve = repmat(2 * m,1,7);
+% tmp.hex_DistBeams = 3.5 * mm;
+% tmp.hex_AperX = tmp.hex_DistBeams - .05 * mm;
+% tmp.hex_AperY = tmp.hex_AperX;
 beam.gen_nPlotPoints = 400;
 beam.hex_InitialBeamDef2D(tmp);
 
-folderName = '~/Documents/research/SLAC/Fall19/ULM/paperFigures/';
-runName = 'combo8_';
+showfigs = [0,1,1,0];
+
+saveFlag = 0;
+folderName = 'C:\Users\rlemons\Documents\Projects\ULM\PaperFigures\';
+runName = 'combo1_V2_';
 fileType = {'.svg','.fig'};
-saveFlag = 1;
+
 
 N = size(beam.field_fList,1)/2;
 M = N-floor(N/3):N+floor(N/3)-1;
 
+if showfigs(1)
 f(1) = figure(1);clf;
 % ax1 = subplot(2,2,1);
 beamInt = abs(beam.field_fList(M,M)).^2;
@@ -56,8 +65,9 @@ caxis([0 1])
 set(gca,'FontSize',40);
 
 fillFig(0.1,0)
+end
 
-
+if showfigs(2)
 f(2) = figure(2);clf;
 % ax2 = subplot(2,2,2);
 beamPhase = angle(beam.field_fList(M,M))+pi-pi/4;
@@ -76,6 +86,7 @@ colorbar('eastoutside',...
 set(gca,'FontSize',40);
 
 fillFig(0.1,0)
+end
 
 
 [beam.field_fList,beam.field_FList] = beam.forwardProp_FreeSpace2D(z);
@@ -83,7 +94,7 @@ fillFig(0.1,0)
 N = size(beam.field_fList,1);
 M = round(linspace(1,N,length(M)));
 
-
+if showfigs(3)
 f(3) = figure(3);clf;
 % ax3 = subplot(2,2,3);
 beamInt = abs(beam.field_fList(M,M)).^2;
@@ -101,7 +112,9 @@ caxis([0 1])
 set(gca,'FontSize',40);
 
 fillFig(0.1,0)
+end
 
+if showfigs(4)
 f(4) = figure(4);clf;
 % ax4 = subplot(2,2,4);
 beamPhase = angle(beam.field_fList(M,M))+pi;
@@ -117,14 +130,23 @@ colorbar('eastoutside',...
 set(gca,'FontSize',40);
 
 fillFig(0.1,0)
+end
 
 if saveFlag
+    if showfigs(1)
     saveas(f(1),[folderName,runName,'nearInt',fileType{1}]);
-    saveas(f(2),[folderName,runName,'nearPhase',fileType{1}]);
-    saveas(f(3),[folderName,runName,'farInt',fileType{1}]);
-    saveas(f(4),[folderName,runName,'farPhase',fileType{1}]);
     saveas(f(1),[folderName,runName,'nearInt',fileType{2}]);
+    end
+    if showfigs(2)
+    saveas(f(2),[folderName,runName,'nearPhase',fileType{1}]);
     saveas(f(2),[folderName,runName,'nearPhase',fileType{2}]);
-    saveas(f(3),[folderName,runName,'farInt',fileType{2}]);
+    end
+    if showfigs(3)
+    saveas(f(3),[folderName,runName,'farInt',fileType{1}]);
+    saveas(f(3),[folderName,runName,'farInt',fileType{2}]);    
+    end
+    if showfigs(4)
+    saveas(f(4),[folderName,runName,'farPhase',fileType{1}]);
     saveas(f(4),[folderName,runName,'farPhase',fileType{2}]);
+    end
 end
