@@ -1,53 +1,25 @@
 %% Load in data
 
 clear
-loadVar = 1;
 
-if loadVar == 1
-    
-    load('~/Documents/GitHub/varCodes/savedVars/nonLinVarAmp.mat');
-    N = size(saveData.energy,2);
-    
-else
-
-
-    saveData = load('~/Documents/GitHub/varCodes/savedVars/nonLinVarAng.mat');
-    N = size(saveData.var,2);
-
-
-end
+saveData = load('~/Documents/GitHub/varCodes/savedVars/nonLinVarAng_Ideal.mat');
+N = size(saveData.var,2);
 
 %% Figure 1, Independant Var vs Theta-0 Build-Up
 
 figure(1)
 
-if loadVar == 1
+p = numSubPlots(N);
+
+yMax = max([saveData.Y{:}],[],'all')*1.1;
+yMin = min([saveData.Y{:}],[],'all')*0.9;
+
+for ii = 1:N
+    subplot(p(1),p(2),ii)
     
-    
-    p = numSubPlots(N);
-    
-    for ii = 1:N
-        subplot(p(1),p(2),ii)
-        
-        plot(saveData.T{ii},saveData.Y{ii})
-        title(['energy: ', num2str(saveData.energy(ii,1)/10^-9), 'nJ' ])
-        
-    end
-    
-    
-else
-    
-    
-    p = numSubPlots(N);
-    
-    for ii = 1:N
-        subplot(p(1),p(2),ii)
-        
-        plot(saveData.T{ii},saveData.Y{ii})
-        title([saveData.indVar,': ' num2str(saveData.var(ii))])
-        
-    end
-    
+    plot(saveData.T{ii},saveData.Y{ii})
+    title([saveData.indVar,': ' num2str(saveData.var(ii))])
+    ylim([yMin yMax])
     
 end
 
@@ -56,33 +28,18 @@ end
 
 figure(2)
 
-if loadVar == 1
+p = numSubPlots(N);
+
+yMax = max([saveData.sigAmp],[],'all')*1.1;
+yMin = min([saveData.sigAmp],[],'all')*0.9;
+
+
+for ii = 1:N
+    subplot(p(1),p(2),ii)
     
-    
-    p = numSubPlots(N);
-    
-    for ii = 1:N
-        subplot(p(1),p(2),ii)
-        
-        plot(saveData.songAmp(:,ii))
-        title(['energy: ', num2str(saveData.energy(ii,1)/10^-9), 'nJ' ])
-        
-    end
-    
-    
-else
-    
-    
-    p = numSubPlots(N);
-    
-    for ii = 1:N
-        subplot(p(1),p(2),ii)
-        
-        plot(saveData.songAmp(:,ii))
-        title([saveData.indVar,': ' num2str(saveData.var(ii))])
-        
-    end
-    
+    plot(saveData.sigAmp(:,:,ii))
+    title([saveData.indVar,': ' num2str(saveData.var(ii))])
+    ylim([yMin yMax])
     
 end
 
@@ -91,46 +48,28 @@ end
 
 figure(3)
 
-if loadVar == 1
+p = numSubPlots(N);
+
+yMax = -Inf; yMin = Inf;
+
+for ii = 1:N
+    subplot(p(1),p(2),ii)
     
-    
-    p = numSubPlots(N);
-    
-    for ii = 1:N
-        subplot(p(1),p(2),ii)
+    tmp = abs(fft(saveData.sigAmp(:,:,ii))).^2;
+    tmp(1,:) = [];
         
-        tmp = abs(fft(saveData.songAmp(:,ii))).^2;
-        tmp(1) = [];        
-        x = 1:1:4000;
-        
-        
-        plot(x,tmp(x))
-        title(['energy: ', num2str(saveData.energy(ii,1)/10^-9), 'nJ' ])
-        
-    end
+    yMax = max(max(tmp,[],'all')*1.1,yMax);
+    yMin = min(min(tmp,[],'all')*0.9,yMin);
     
-    
-else
-    
-    
-    p = numSubPlots(N);
-    
-    for ii = 1:N
-        subplot(p(1),p(2),ii)
-        
-        tmp = abs(fft(saveData.songAmp(:,ii))).^2;
-        tmp(1) = [];        
-        x = 1:1:4000;
-        
-        
-        plot(x,tmp(x))
-        title([saveData.indVar,': ' num2str(saveData.var(ii))])
-        
-    end
-    
+    plot(tmp)
+    title([saveData.indVar,': ' num2str(saveData.var(ii))])
     
 end
 
+for ii = 1:N
+    subplot(p(1),p(2),ii)
+    ylim([yMin yMax])
+end
 
 
 %%

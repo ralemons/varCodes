@@ -12,7 +12,7 @@ c = 299792458; eps0 = 8.854187817*10^-12;
 
 % Run Parameters
 % songStr = 'Intro.mp3';
-fileStr = '~/Documents/GitHub/varCodes/nonlinODEsolve/bboShift1.m';
+fileStr = '~/Documents/GitHub/varCodes/nonlinODEsolve/bboShift.m';
 
 %% Equations
 
@@ -30,15 +30,15 @@ phi0o(lam,l) = (2*pi/lam) * nO(lam) * l;
 phi0e(lam,l,theta) = (2*pi/lam) * nE_Theta(lam,theta) * l;
 
 if ~isfile(fileStr)
-deltaKL = matlabFunction(...
-    phi0o(lam1,l) + phi0o(lam2,l) - phi0e(lam3,l,theta) + (phi2) + (phi2),...
-    'Vars',{lam1,lam2,lam3,theta,phi1,phi2,l},'File',fileStr);
+    deltaKL = matlabFunction(...
+        phi0o(lam1,l) + phi0o(lam2,l) - phi0e(lam3,l,theta) + (phi2) + (phi2),...
+        'Vars',{lam1,lam2,lam3,theta,phi1,phi2,l},'File',fileStr);
 end
 
 nO = matlabFunction(nO,'Vars',{lam});
 nE_Theta = matlabFunction(nE_Theta,'Vars',{lam,theta});
 
-clear l theta lam lam1 lam2 lam3 phi1 phi2 phi0o phi0e 
+clear l theta lam lam1 lam2 lam3 phi1 phi2 phi0o phi0e
 
 
 
@@ -50,14 +50,17 @@ lams(3) = 1/((1/lams(1))+(1/lams(2)));
 
 omegas = 2*pi*c./lams;
 
-crysLen = 2*mm;
+crysLen = 10*mm;
+% crysLen = 0.3*mm;
 thetaTST = [0 50];
 
 useSin = 0;
 
 if exist('songStr','var')
     
-    [phis(1,:),sigFs] = loadSongPhase(songStr,24,25,-9*pi/4,0,0);
+    scale = pi;
+    shift = 0;
+    [phis(1,:),sigFs] = loadSongPhase(songStr,24,25,scale,shift,0);
     phis(1,end) = 0;
     
 elseif useSin
@@ -76,10 +79,13 @@ else
     
     Str = 'This is my test'; %#ok<*UNRCH>
     Bin = reshape(dec2bin(Str,8).',1,[])-'0';
-    Bin = interpBin(Bin,2000);
     
-    sigFs = 100 * Hz;
-    scale = pi/2;
+    sigFs = 500 * Hz;
+    Bin = interpBin(Bin,length(Bin)*(sigFs/100));
+    
+    Bin = double(~Bin);
+    
+    scale = pi;
     shift = 0;
     
     phis(1,:) = (scale*Bin)+shift;
@@ -88,9 +94,9 @@ end
 
 % phis(1,:) = 0;
 
-% figure(1);
-% plot(phis(1,:));
-% drawnow
+figure(1);
+plot(phis(1,:));
+drawnow
 
 N = length(phis(1,:));
 
@@ -98,69 +104,74 @@ N = length(phis(1,:));
 phis(2,:) = zeros(N,1);
 
 clear saveData
-M = 1;
-saveData = struct('indVar','matching angle','var',zeros(1,M),'sigAmp',zeros(N,M),'T',{cell(1,M)},'Y',{cell(1,M)});
+M = 10;
+saveData = struct('indVar','matching angle','var',zeros(1,M),'sigAmp',zeros(N,3,M),'T',{cell(1,M)},'Y',{cell(1,M)});
 
 options = odeset('RelTol',1e-4,'AbsTol',1e-6);
 
 % Find crystal angle for phase matching
+matchAngle = linspace(0,pi,10);
 for jj = 1:M
-thetaZero = findTheta(lams,thetaTST,[-scale/2 0],crysLen);
-saveData.var(1,jj) = thetaZero;
+    thetaZero = findTheta(lams,thetaTST,[matchAngle(jj) 0],crysLen);
+    saveData.var(1,jj) = thetaZero;
     
-pEnergy = 1 * uJ;
-% saveData.var(1,jj) = pEnergy;
-
-pDur = 250 * fs;
-pRad = 100 * um;
-
-pInten = ((2*sqrt(log(16)))./((pi^(3/2)).*(pRad.^2).*(pDur))).*pEnergy;
-pField = sqrt( (pInten)./(2*c*eps0*nO(lams(1))) );
-
-tRange = [0 crysLen];
-conds = [pField; pField; 0];
-
-odes = myODEs();
-
-% N = 100;
-timeVals = zeros(N,1);
-ampVals = zeros(N,1);
-
-for ii = 1:N
-    tic
-    [T,Y] = ode45(@(t,Y)odes(t,Y,omegas(1),omegas(2),omegas(3),...
-        dNL,c,lams(1),lams(2),lams(3),thetaZero,phis(1,ii),phis(2,ii)),...
-        tRange, conds,options);
-    ampVals(ii) = Y(end,3);
-    timeVals(ii) = toc;
-    if mod(ii,round(N/100)) == 0
-        disp([num2str( round((ii/N)*100) ),'% complete']);
+    pEnergy = 1 * nJ;
+    % saveData.var(1,jj) = pEnergy;
+    
+    pDur = 250 * fs;
+    pRad = 100 * um;
+    
+    pInten = ((2*sqrt(log(16)))./((pi^(3/2)).*(pRad.^2).*(pDur))).*pEnergy;
+    pField = sqrt( (pInten)./(2*c*eps0*nO(lams(1))) );
+    
+    tRange = [0 crysLen];
+    conds = [pField; pField; 0];
+    
+    odes = myODEs();
+    
+    % N = 100;
+    timeVals = zeros(N,1);
+    ampVals = zeros(N,3);
+    
+    for ii = 1:N
+        tic
+        [T,Y] = ode45(@(t,Y)odes(t,Y,omegas(1),omegas(2),omegas(3),...
+            dNL,c,lams(1),lams(2),lams(3),thetaZero,phis(1,ii),phis(2,ii)),...
+            tRange, conds,options);
+        ampVals(ii,1) = Y(end,1);
+        ampVals(ii,2) = Y(end,2);
+        ampVals(ii,3) = Y(end,3);
+        timeVals(ii) = toc;
+        if mod(ii,round(N/100)) == 0
+            disp([num2str( round((ii/N)*100) ),'% complete']);
+        end
     end
-end
-
-disp(['Each iteration took: ', num2str(mean(timeVals)*1000,'%.2f'),' ms'])
-disp(['The total time was: ', num2str(sum(timeVals)/60,'%.2f'),' min'])
-
-normAmp = 0;
-ampVals = convAmp(ampVals,normAmp);
-
-saveData.sigAmp(:,jj) = ampVals;
-saveData.T{jj} = T;
-saveData.Y{jj} = abs(Y).^2;
-
-figure(2);
-plot(T,abs(Y).^2);
-drawnow
-
-figure(3);
-plot(1:length(ampVals),ampVals);
-drawnow
-
-if normAmp
-    player = audioplayer(ampVals,sigFs); %#ok<TNMLP>
-    play(player)
-end
-
+    
+    disp(['Each iteration took: ~', num2str(mean(timeVals)*1000,'%.2f'),' ms'])
+    disp(['The total time was: ~', num2str(sum(timeVals)/60,'%.2f'),' min'])
+    
+    normAmp = 0;
+    ampVals = convAmp(ampVals,normAmp);
+    
+    saveData.sigAmp(:,:,jj) = ampVals;
+    saveData.T{jj} = T;
+    saveData.Y{jj} = abs(Y).^2;
+    
+    figure(2);
+    plot(T,abs(Y).^2);
+    legend({'Field 1','Field 2','Field 3'})
+    drawnow
+    
+    figure(3);
+    plot(repmat(1:length(ampVals),size(ampVals,2),1)',ampVals);
+    legend({'Field 1','Field 2','Field 3'})
+    drawnow
+    
+    if normAmp
+        player = audioplayer(ampVals,sigFs); %#ok<TNMLP>
+        play(player)
+    end
+    
 end
 
 function Sys = myODEs()
@@ -186,6 +197,7 @@ y = fzero(@fun,thetaTst,optimset('Display','off'));
 
 end
 
+
 function [phi,Fs] = loadSongPhase(str,startVal,endVal,scale,shift,plotFlag)
 
 [y,Fs] = audioread(str);
@@ -196,7 +208,6 @@ if startVal == 0
     startVal = 1;
 end
 
-
 phi = y(startVal:endVal,1);
 phi = (scale*((phi )./max(phi )))+shift;
 
@@ -206,21 +217,29 @@ end
 
 end
 
+
 function amp = convAmp(amp,normFlag)
 
-amp = abs(amp).^2;
-
-if normFlag
-    if length(amp) > 1
-        amp = (( (amp - min(amp)) / (max(amp)-min(amp)) ) * 2) - 1;
-    else
-        amp = amp/max(amp);
+for ii = 1:size(amp,2)
+    
+    amp(:,ii) = abs(amp(:,ii)).^2;
+    
+    if normFlag == 1
+        if length(amp(:,ii)) > 1
+            amp(:,ii) = (( (amp(:,ii) - min(amp(:,ii))) ...
+                / (max(amp(:,ii))-min(amp(:,ii))) ) * 2) - 1;
+        else
+            amp(:,ii) = amp(:,ii)/max(amp(:,ii));
+        end
+    elseif normFlag == 2
+        amp(:,ii) = amp(:,ii)/max(amp(:,ii));
+        amp(:,ii) = amp(:,ii)*100;
     end
+    
 end
 
-
-
 end
+
 
 function out = interpBin(bin,newLen)
 
