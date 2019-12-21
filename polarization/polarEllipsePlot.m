@@ -35,9 +35,8 @@ xlim([0 size(S,2)+1]);
 ylim([0 size(S,1)+1]);
 hold on
 
-% Holds info on whether arrow flips direction based on e>1
-flip = 1;
-
+% % Holds info on whether arrow flips direction based on e>1
+% flip = 0;
 
 % Loop through all the ellipses that need to be created
 for ii = 1:size(XY,1)

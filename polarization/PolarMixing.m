@@ -22,21 +22,21 @@ filePath = uigetdir('D:\ULM\Polarization\Pictures\'); % points to the general fo
 
 %% Load the files
 
-dataIN(:,:,1) = imread(fullfile(filePath,'Full-IR.png'));
-dataIN(:,:,2) = imread(fullfile(filePath,'H-IR.png'));
-dataIN(:,:,3) = imread(fullfile(filePath,'V-IR.png'));
-dataIN(:,:,4) = imread(fullfile(filePath,'D-IR.png'));
-dataIN(:,:,5) = imread(fullfile(filePath,'AD-IR.png'));
-dataIN(:,:,6) = imread(fullfile(filePath,'L-IR.png'));
-dataIN(:,:,7) = imread(fullfile(filePath,'R-IR.png'));
+% dataIN(:,:,1) = imread(fullfile(filePath,'Full-IR.png'));
+% dataIN(:,:,2) = imread(fullfile(filePath,'H-IR.png'));
+% dataIN(:,:,3) = imread(fullfile(filePath,'V-IR.png'));
+% dataIN(:,:,4) = imread(fullfile(filePath,'D-IR.png'));
+% dataIN(:,:,5) = imread(fullfile(filePath,'AD-IR.png'));
+% dataIN(:,:,6) = imread(fullfile(filePath,'L-IR.png'));
+% dataIN(:,:,7) = imread(fullfile(filePath,'R-IR.png'));
 
-% dataIN(:,:,1) = rgb2gray(imread(fullfile(filePath,'Full-IR.png')));
-% dataIN(:,:,2) = rgb2gray(imread(fullfile(filePath,'H-IR.png')));
-% dataIN(:,:,3) = rgb2gray(imread(fullfile(filePath,'V-IR.png')));
-% dataIN(:,:,4) = rgb2gray(imread(fullfile(filePath,'D-IR.png')));
-% dataIN(:,:,5) = rgb2gray(imread(fullfile(filePath,'AD-IR.png')));
-% dataIN(:,:,6) = rgb2gray(imread(fullfile(filePath,'L-IR.png')));
-% dataIN(:,:,7) = rgb2gray(imread(fullfile(filePath,'R-IR.png')));
+dataIN(:,:,1) = rgb2gray(imread(fullfile(filePath,'Full-IR.png')));
+dataIN(:,:,2) = rgb2gray(imread(fullfile(filePath,'H-IR.png')));
+dataIN(:,:,3) = rgb2gray(imread(fullfile(filePath,'V-IR.png')));
+dataIN(:,:,4) = rgb2gray(imread(fullfile(filePath,'D-IR.png')));
+dataIN(:,:,5) = rgb2gray(imread(fullfile(filePath,'AD-IR.png')));
+dataIN(:,:,6) = rgb2gray(imread(fullfile(filePath,'L-IR.png')));
+dataIN(:,:,7) = rgb2gray(imread(fullfile(filePath,'R-IR.png')));
 
 % dataIN(:,:,1) = imread(fullfile(filePath,'Full-IR.bmp'));
 % dataIN(:,:,2) = imread(fullfile(filePath,'H-IR.bmp'));
@@ -60,8 +60,8 @@ dataOUT = double(dataIN);
 % end
 
 
-numGrid.H = 30; % number of MPs in x
-numGrid.V = 30; % number of MPs in y
+numGrid.H = 60; % number of MPs in x
+numGrid.V = 60; % number of MPs in y
 
 % Find out number of pixels per MP in x and y
 numPix.H = floor(size(dataOUT(:,:,1),2)/numGrid.H);
