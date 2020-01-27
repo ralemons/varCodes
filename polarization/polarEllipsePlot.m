@@ -1,4 +1,4 @@
-function polarEllipsePlot(S,fullImage,div,arrowScale,arrowPos,fignum,chooseROI)
+function [varargout] = polarEllipsePlot(S,fullImage,div,arrowScale,arrowPos,fignum,chooseROI)
 % This function makes use of the Image Processing Toolbox from MATLAB. If
 % you do not have this toolbox then you cannot use this function unless you
 % want to rebuild the functionality of 'drawcircle' and 'inROI' yourself.
@@ -9,7 +9,7 @@ X = 1:div:size(S,2);
 Y = 1:div:size(S,1);
 
 % Scales image and places it on grid for the ellipses to plot on
-figure(fignum)
+f = figure(fignum);
 imagesc([0 size(S,2)+1],[0 size(S,1)+1], fullImage );
 axis square
 
@@ -80,7 +80,7 @@ for ii = 1:size(XY,1)
     % Place ellipse in correct place ie. (0,0) -> (X,Y)
     A = A + XY(ii,1);
     B = B + XY(ii,2);
-    
+%     Column
     
     % Where to plot arrow around the ellipse
     if flip == 0
@@ -93,34 +93,45 @@ for ii = 1:size(XY,1)
     if sign(s3) == 1 || sign(s3) == 0
         xArrowHead = [A(top-1) A(top)];
         yArrowHead = [B(top-1) B(top)];
+        co = [255, 255, 255]/255;
     else
         xArrowHead = [A(top) A(top-1)];
         yArrowHead = [B(top) B(top-1)];
+        co = [255, 73, 41]/255;
     end
     
     % Keeps the warning from showing up about imaginary numbers
     warning(''); %#ok<WLAST>
     
     % Colors for plotting
-    co = [0.8500 0.3250 0.0980];
-    coWarn = [0.7500 0 0.7500];
+%     co = [0.8500 0.3250 0.0980];
+%     coWarn = [0.7500 0 0.7500];
     
     
-    p = plot(A,B,'Color',co,'linewidth',1); % Ellipse
-    ar = arrowh(xArrowHead,yArrowHead,co,arrowScale,arrowPos); % Arrow
+    p(ii) = plot(A,B,'Color',co,'linewidth',1); % Ellipse
+    ar(ii) = arrowh(xArrowHead,yArrowHead,co,arrowScale,arrowPos); % Arrow
 
     
-    if flip == 1
-        p.Color = coWarn;
-        ar.EdgeColor = coWarn;
-        ar.FaceColor = coWarn;
-    end
+%     if flip == 1
+%         p.Color = coWarn;
+%         ar.EdgeColor = coWarn;
+%         ar.FaceColor = coWarn;
+%     end
 end
 
 
 hold off
 
 % set(gca,'visible','off'); % Uncomment to get rid of axis
+
+if nargout == 1
+    varargout{1} = f;
+elseif nargout == 2
+    varargout{2} = p;
+elseif nargout == 3
+    varargout{3} = ar;
+end
+
 
 
 %% Functions to control ROI behavior on click

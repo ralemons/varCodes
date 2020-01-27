@@ -193,7 +193,7 @@ S_num(:,:,5) = sum( S_num(:,:,2:4).^2 , 3);
 % S_num(:,:,5) = tmp_num;
 
 % Plot the stokes parameter
-figure(1)
+f{1} = figure(1);
 for ii = 1:3
     subplot(2,2,ii)
     imagesc(S_num(:,:,ii+1))
@@ -268,7 +268,7 @@ end
 div = 2; % Divides number of MP by this to choose how many MP to plot
 scale = 75; % How big each arrrow is (Just play with this, it's weird)
 arrowMove = 1200; % How far the arrow is along the circle (Just play with this, it's weird)
-fignum = 2; % What the number of the figure you create is
+fignum = 2; % What the number old plot that would of the figure you create is
 chooseROI = 1; % Pulls up selectable ROI if 1, plot full image if 0
 
 polarEllipsePlot(S_polar,fullIm,div,scale,arrowMove,fignum,chooseROI);

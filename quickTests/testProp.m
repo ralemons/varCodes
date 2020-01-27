@@ -27,12 +27,14 @@ beam.inputProperties2D(beamBak);
 z =  20 * m; % Distance to Propagate
 
 tmp = beam.outputProperties2D('hex');
-% tmp.hex_BeamsOn = [0,1,1,1,1,1,1];
+
+tmp.hex_BeamsOn = [0,1,1,1,1,1,1];
 tmp.hex_PhaseOffset = [0,0,0,0,0,0,0] + pi/4;
+
 % tmp.hex_PhaseCurve = repmat(2 * m,1,7);
-% tmp.hex_DistBeams = 3.5 * mm;
-% tmp.hex_AperX = tmp.hex_DistBeams - .05 * mm;
-% tmp.hex_AperY = tmp.hex_AperX;
+tmp.hex_DistBeams = 3.5 * mm;
+tmp.hex_AperX = tmp.hex_DistBeams - .05 * mm;
+tmp.hex_AperY = tmp.hex_AperX;
 beam.gen_nPlotPoints = 400;
 beam.hex_InitialBeamDef2D(tmp);
 

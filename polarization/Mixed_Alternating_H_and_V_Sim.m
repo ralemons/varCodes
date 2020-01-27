@@ -39,8 +39,8 @@ beam.inputProperties2D(beamBak);
 tmpH = beam.outputProperties2D('hex');
 tmpV = beam.outputProperties2D('hex');
 
-tmpH.hex_BeamsOn = [0,0,1,1,0,1,1];
-tmpH.hex_PhaseOffset = [0,0,pi/2,pi/2,0,-pi/2,-pi/2] + pi/4;
+tmpH.hex_BeamsOn = [0,1,0,1,0,1,0];
+tmpH.hex_PhaseOffset = [0,0,0,0,0,0,0] + pi/4;
 
 % tmpH.hex_PhaseCurve = repmat(2 * m,1,7);
 tmpH.hex_DistBeams = 3.5 * mm;
@@ -50,8 +50,8 @@ hBeam.gen_nPlotPoints = 400;
 hBeam.hex_InitialBeamDef2D(tmpH);
 
 
-tmpV.hex_BeamsOn = [1,1,0,0,1,0,0];
-tmpV.hex_PhaseOffset = [-pi/2,pi/2,0,0,pi/2,0,0] + pi/4;
+tmpV.hex_BeamsOn = [0,0,1,0,1,0,1];
+tmpV.hex_PhaseOffset = [0,0,0,0,0,0,0] + pi/4;
 
 % tmpV.hex_PhaseCurve = repmat(2 * m,1,7);
 tmpV.hex_DistBeams = 3.5 * mm;
