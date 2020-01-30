@@ -194,6 +194,7 @@ S_num(:,:,5) = sum( S_num(:,:,2:4).^2 , 3);
 
 % Plot the stokes parameter
 f{1} = figure(1);
+clf
 for ii = 1:3
     subplot(2,2,ii)
     imagesc(S_num(:,:,ii+1))
@@ -235,7 +236,6 @@ title('\Sigma S_i^2','Interpreter','tex')
 % writematrix(out,fileOutPath); % You can then load this directly by the .m
 %
 
-
 %% Write image data to files after xcorr (FULLY BROKEN, IDK WHY)
 % 
 % c = {'Full','H','V','D','AD','L','R'}; 
@@ -245,7 +245,6 @@ title('\Sigma S_i^2','Interpreter','tex')
 %     imwrite(tmp(:,:,ii),['~/Downloads/',c{ii},'-IR.png']);
 %     
 % end
-
 
 %% Plot the polarization ellipses over the full image of the beam
 
@@ -267,9 +266,13 @@ end
 
 div = 2; % Divides number of MP by this to choose how many MP to plot
 scale = 75; % How big each arrrow is (Just play with this, it's weird)
-arrowMove = 1200; % How far the arrow is along the circle (Just play with this, it's weird)
+arrowMove = 500; %1200; % How far the arrow is along the circle (Just play with this, it's weird)
 fignum = 2; % What the number old plot that would of the figure you create is
-chooseROI = 1; % Pulls up selectable ROI if 1, plot full image if 0
+chooseROI = 0; % Pulls up selectable ROI if 1, plot full image if 0
+macroPixSize = numPix;
+logMat = fullIm;
 
-polarEllipsePlot(S_polar,fullIm,div,scale,arrowMove,fignum,chooseROI);
+[a,b,c] = polarEllipsePlot(S_polar,fullIm,div,scale,arrowMove,fignum,chooseROI,numPix,dataOUT(:,:,1));
+% print('-painters','-dsvg','untitled')
+
 

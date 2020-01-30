@@ -17,13 +17,15 @@ c = 3*10^8 * m/s;
 J = 10^6;
 uJ = J*10^-6;
 
+crys = 'YVO4'; % BBO or YVO4 or CAL
+lambda = 0.515; % Enter lambda in um regardless of set space unit
+figNum = 1; % number for the figure you want, use to not overide other plots
+tau = 4*ps/1.665; % tau = FWHM/1.665
+power = 15*uJ; % normalize the energy in the pulse to real numbers
+
 % sympref('FourierParameters',[(1/sqrt(2*pi)) 1]); % you can uncomment this to use the same fourier parameters as Mathematica
 
-% BBO or YVO4 or CAL
-[ne,no] = nonLinCrysChoice('BBO',.515); % Enter lambda in um regardless of set space unit
-
-tau = 1*ps/1.665; % tau = FWHM/1.665
-power = 50*uJ; % normalize the energy in the pulse to real numbers
+[ne,no] = nonLinCrysChoice('YVO4',.515); % get refractive indicies
 dn = ne - no; % difference in refractive index between crystal axis
 
 
@@ -69,12 +71,10 @@ GaussIn = [F(w);0]; % input pulse in frequency space
 % Output of the stacker. There are currently four crystals. Also I don't
 % call it T(w) right away so that the first element (along the polarizor
 % direction) can be pulled out
-% TF  = Pol(0) * T(thetaCrys(4),phiCrys(4),dCrys(4))...
-%     * Pol(0) * T(thetaCrys(3),phiCrys(3),dCrys(3))...
-%     * Pol(0) * T(thetaCrys(2),phiCrys(2),dCrys(2))...
-%     * Pol(0) * T(thetaCrys(1),phiCrys(1),dCrys(1))...
-%     * GaussIn;
-TF  = Pol(0) * T(thetaCrys(1),phiCrys(1),dCrys(1))...
+TF  = Pol(0) * T(thetaCrys(4),phiCrys(4),dCrys(4))...
+    * Pol(0) * T(thetaCrys(3),phiCrys(3),dCrys(3))...
+    * Pol(0) * T(thetaCrys(2),phiCrys(2),dCrys(2))...
+    * Pol(0) * T(thetaCrys(1),phiCrys(1),dCrys(1))...
     * GaussIn;
 TF(w) = TF(1); % now we can make out function
 TFHan = matlabFunction(TF(w));
@@ -95,24 +95,42 @@ end
 dt = 0.01*ps;
 times = -20*ps:dt:20*ps;
 
-[FWHM,rise,~] = pulseParams(abs(fHan(times)).^2,times);
-disp(['>>>> Input pulse has a FWHM of: ',num2str(FWHM),...
-    ' ps and a rise/fall time of: ',num2str(rise),' ps'])
+[FWHM(1,:),rise(1,:),~] = pulseParams(abs(fHan(times)).^2,times);
+disp(['>>>> Input pulse has a FWHM of: ',num2str(FWHM(1,:)),...
+    ' ps and a rise/fall time of: ',num2str(rise(1,:)),' ps'])
 
-[FWHM,rise,~] = pulseParams(abs(PulseHan(times)).^2,times);
-disp(['>>>> Output pulse has a FWHM of: ',num2str(FWHM),...
-    ' ps and a rise/fall time of: ',num2str(rise),' ps'])
+[FWHM(2,:),rise(2,:),~] = pulseParams(abs(PulseHan(times)).^2,times);
+if size(rise(2,:),2) >= 2
+    disp(['>>>> Output pulse is a train with FWHM of: ',num2str(FWHM(2,1)),...
+        ' ps and a rise/fall time of: ',num2str(rise(2,1)),' ps'])
+else
+    disp(['>>>> Output pulse has a FWHM of: ',num2str(FWHM(2,:)),...
+        ' ps and a rise/fall time of: ',num2str(rise(2,:)),' ps'])
+end
 
+figure(figNum)
+clf
 
 subplot(2,1,1)
 plot(times,abs(fHan(times)).^2,'LineWidth',3)
 title('Input Pulse','FontSize',30);
 xlabel('ps','FontSize',24);
+text(min(times)*0.925,max(abs(fHan(times)).^2)*0.85,'Intital Parameters','FontWeight','bold');
+text(min(times)*0.925,max(abs(fHan(times)).^2)*0.8,['Crystal Choice: ',crys]);
+text(min(times)*0.925,max(abs(fHan(times)).^2)*0.75,['Wavelength: ',num2str(lambda),' um']);
+text(min(times)*0.925,max(abs(fHan(times)).^2)*0.7,['Crystal Lengths: ',char(strjoin(string(dCrys),', ')),' mm']);
+text(min(times)*0.925,max(abs(fHan(times)).^2)*0.65,['FWHM: ',num2str(FWHM(1,1)),' ps']);
+text(min(times)*0.925,max(abs(fHan(times)).^2)*0.6,['Rise/Fall: ',num2str(rise(1,1)),' ps']);
+fillFig(0,0)
 
 subplot(2,1,2)
 plot(times,abs(PulseHan(times)).^2,'LineWidth',3)
 title('Output Pulse','FontSize',30);
 xlabel('ps','FontSize',24);
+text(min(times)*0.925,max(abs(PulseHan(times)).^2)*0.85,'Output Parameters','FontWeight','bold');
+text(min(times)*0.925,max(abs(PulseHan(times)).^2)*0.8,['FWHM: ',num2str(FWHM(2,1)),' ps']);
+text(min(times)*0.925,max(abs(PulseHan(times)).^2)*0.75,['Rise/Fall: ',num2str(rise(2,1)),' ps']);
+fillFig(0,0)
 
 
 
@@ -153,5 +171,18 @@ FWHM = pulsewidth(pulseVec,times);
 riseTime = risetime(pulseVec,times);
 fallTime = falltime(pulseVec,times);
 
+
+end
+
+function [] = fillFig(uFillW,uFillH)
+    
+ax = gca;
+outerpos = ax.OuterPosition;
+ti = ax.TightInset;
+left = outerpos(1) + ti(1);
+bottom = outerpos(2) + ti(2);
+ax_width = outerpos(3) - ti(1) - ti(3)-uFillW;
+ax_height = outerpos(4) - ti(2) - ti(4)-uFillH;
+ax.Position = [left bottom ax_width ax_height];
 
 end
