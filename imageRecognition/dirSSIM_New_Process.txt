@@ -1,0 +1,12 @@
+1) Load Directory
+    a) load image directory
+    b) create directory for duplicates
+        I) If it exists already delete it
+    c) load list of images in the directory
+    d) create logical vector to mark duplicate status
+2) Load and Process Images 
+    a) Load each image into a cell
+        I) convert to rgb if indexed image
+        II) convert to bw (if not already)
+    b) resize image to uniform smaller size
+    
