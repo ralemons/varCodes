@@ -17,15 +17,15 @@ c = 3*10^8 * m/s;
 J = 10^6;
 uJ = J*10^-6;
 
-crys = 'YVO4'; % BBO or YVO4 or CAL
-lambda = 0.515; % Enter lambda in um regardless of set space unit
+crys = 'BBO'; % BBO or YVO4 or CAL
+lambda = 0.257; % Enter lambda in um regardless of set space unit
 figNum = 1; % number for the figure you want, use to not overide other plots
-tau = 4*ps/1.665; % tau = FWHM/1.665
-power = 15*uJ; % normalize the energy in the pulse to real numbers
+tau = 3.5*ps/1.665; % tau = FWHM/1.665
+power = 5*uJ; % normalize the energy in the pulse to real numbers
 
 % sympref('FourierParameters',[(1/sqrt(2*pi)) 1]); % you can uncomment this to use the same fourier parameters as Mathematica
 
-[ne,no] = nonLinCrysChoice('YVO4',.515); % get refractive indicies
+[ne,no] = nonLinCrysChoice(crys,lambda); % get refractive indicies
 dn = ne - no; % difference in refractive index between crystal axis
 
 
@@ -34,7 +34,7 @@ thetaCrys = ones(4,1) .* deg2rad(45); % angle of the crystals
 
 phiCrys = ones(4,1) .* 0; % precise tunning of crystals
 
-dCrysBase = 2 * mm; % base length
+dCrysBase = 3 * mm; % base length
 dCrys = ones(4,1) .* dCrysBase .* 2.^(0:3)'; % generate larger crystals
 
 

@@ -50,9 +50,9 @@ if useXcorr
     %%% These statements point the code to a manually cropped version of
     %%% the full intesity image. In general the manually croped image
     %%% should be 100 pixels smaller in each dimension from the raw images
-    cropFull = double(rgb2gray(imread("/home/randy/Documents/research/SLAC/Fall19/ULM/Polarization/Mixed_H-Sides_V-Center_Crop_Xcorr/manCrop.png")));
+%     cropFull = double(rgb2gray(imread("/home/randy/Documents/research/SLAC/Fall19/ULM/Polarization/Mixed_H-Sides_V-Center_Crop_Xcorr/manCrop.png")));
 %     cropFull = double(rgb2gray(imread("/home/randy/Documents/research/SLAC/Fall19/ULM/Polarization/Linear_H-All_Crop_Xcorr/manCrop.png")));
-%     cropFull = double(rgb2gray(imread("/home/randy/Documents/research/SLAC/Fall19/ULM/Polarization/Mixed_H_V_Alternating_Circle_Crop_Xcorr/manCrop.png")));
+    cropFull = double(rgb2gray(imread("/home/randy/Documents/research/SLAC/Fall19/ULM/Polarization/Mixed_H_V_Alternating_Circle_Crop_Xcorr/manCrop.png")));
     
     tmp = double(dataIN);
     cropFull = cropFull - mean(cropFull);
@@ -154,18 +154,19 @@ S_num = zeros(numGrid.V,numGrid.H,4);
 for ii = 1:numGrid.V
     for jj = 1:numGrid.H
         
-        p0 = dataOUT(grids.V(:,ii),grids.H(:,jj),1);
+%         p0 = dataOUT(grids.V(:,ii),grids.H(:,jj),1);
+        p0 = (dataOUT(grids.V(:,ii),grids.H(:,jj),2) + dataOUT(grids.V(:,ii),grids.H(:,jj),3));
         p1 = (dataOUT(grids.V(:,ii),grids.H(:,jj),2) - dataOUT(grids.V(:,ii),grids.H(:,jj),3));
         p2 = (dataOUT(grids.V(:,ii),grids.H(:,jj),4) - dataOUT(grids.V(:,ii),grids.H(:,jj),5));
-        p3 = (dataOUT(grids.V(:,ii),grids.H(:,jj),6) - dataOUT(grids.V(:,ii),grids.H(:,jj),7));
+        p3 = (dataOUT(grids.V(:,ii),grids.H(:,jj),7) - dataOUT(grids.V(:,ii),grids.H(:,jj),6));
         
         
-        S(grids.V(:,ii),grids.H(:,jj),1) = p0; % should be p0/p0 but this gives the orignal image and p0 isn't used
+        S(grids.V(:,ii),grids.H(:,jj),1) = p0./p0; % should be p0/p0 but this gives the orignal image and p0 isn't used
         S(grids.V(:,ii),grids.H(:,jj),2) = p1./p0;
         S(grids.V(:,ii),grids.H(:,jj),3) = p2./p0;
         S(grids.V(:,ii),grids.H(:,jj),4) = p3./p0;
         
-        S_num(ii,jj,1) = unique(p0); % same as with S
+        S_num(ii,jj,1) = unique(p0./p0); % same as with S
         S_num(ii,jj,2) = unique(p1./p0);
         S_num(ii,jj,3) = unique(p2./p0);
         S_num(ii,jj,4) = unique(p3./p0);
@@ -180,17 +181,17 @@ S(:,:,5) = sum( S(:,:,2:4).^2 , 3);
 S_num(:,:,5) = sum( S_num(:,:,2:4).^2 , 3);
 
 
-%%% Commented block to measure how close S_sum is to 1 (it should be
-%%% everywhere but you know how data be
-% tmp = S(:,:,5);
-% tmp_num = S_num(:,:,5);
-%
-% range = .2;
-% tmp(tmp<(1+range) & tmp>(1-range)) = 100;
-% tmp_num(tmp_num<(1+range) & tmp_num>(1-range)) = 100;
-%
-% S(:,:,5) = tmp;
-% S_num(:,:,5) = tmp_num;
+%%%% Commented block to measure how close S_sum is to 1 (it should be
+%%%% everywhere but you know how data be
+tmp = S(:,:,5);
+tmp_num = S_num(:,:,5);
+
+range = .2;
+tmp(tmp<(1+range) & tmp>(1-range)) = 100;
+tmp_num(tmp_num<(1+range) & tmp_num>(1-range)) = 100;
+
+S(:,:,5) = tmp;
+S_num(:,:,5) = tmp_num;
 
 % Plot the stokes parameter
 f{1} = figure(1);
@@ -198,7 +199,7 @@ clf
 for ii = 1:3
     subplot(2,2,ii)
     imagesc(S_num(:,:,ii+1))
-    %     caxis([-1,1]) % uncomment to enforce color limits. Another error
+    caxis([-1,1]) % uncomment to enforce color limits. Another error
     colorbar
     axis square
     fillFig(0,0)
@@ -272,7 +273,7 @@ chooseROI = 0; % Pulls up selectable ROI if 1, plot full image if 0
 macroPixSize = numPix;
 logMat = fullIm;
 
-[a,b,c] = polarEllipsePlot(S_polar,fullIm,div,scale,arrowMove,fignum,chooseROI,numPix,dataOUT(:,:,1));
+polarEllipsePlot(S_polar,fullIm,div,scale,arrowMove,fignum,chooseROI,numPix,dataOUT(:,:,1));
 % print('-painters','-dsvg','untitled')
 
 
