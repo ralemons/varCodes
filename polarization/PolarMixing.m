@@ -172,13 +172,11 @@ S_num = zeros(numGrid.V,numGrid.H,4);
 for ii = 1:(numGrid.V)
     for jj = 1:(numGrid.H)
         
-        p0 = dataOUT(grids.V(:,ii),grids.H(:,jj),1);
-%         p0 = (dataOUT(grids.V(:,ii),grids.H(:,jj),2) + dataOUT(grids.V(:,ii),grids.H(:,jj),3));
-%         p0 = (dataOUT(grids.V(:,ii),grids.H(:,jj),4) + dataOUT(grids.V(:,ii),grids.H(:,jj),5));
-%         p0 = (dataOUT(grids.V(:,ii),grids.H(:,jj),6) + dataOUT(grids.V(:,ii),grids.H(:,jj),7));
+%         p0 = dataOUT(grids.V(:,ii),grids.H(:,jj),1);
+        p0 = (dataOUT(grids.V(:,ii),grids.H(:,jj),2) + dataOUT(grids.V(:,ii),grids.H(:,jj),3));
         p1 = (dataOUT(grids.V(:,ii),grids.H(:,jj),2) - dataOUT(grids.V(:,ii),grids.H(:,jj),3));
         p2 = (dataOUT(grids.V(:,ii),grids.H(:,jj),4) - dataOUT(grids.V(:,ii),grids.H(:,jj),5));
-        p3 = (dataOUT(grids.V(:,ii),grids.H(:,jj),6) - dataOUT(grids.V(:,ii),grids.H(:,jj),7));
+        p3 = (dataOUT(grids.V(:,ii),grids.H(:,jj),7) - dataOUT(grids.V(:,ii),grids.H(:,jj),6));
         
         
         S(grids.V(:,ii),grids.H(:,jj),1) = p0./p0; % should be p0/p0 but this gives the orignal image and p0 isn't used
@@ -205,9 +203,17 @@ S_num(:,:,5) = sqrt( sum( S_num(:,:,2:4).^2 , 3) );
 validMat = (S(:,:,5)<=(1.05));
 validMat_num = (S_num(:,:,5)<=(1.05));
 
-% range = .05;
-% validMat = (S(:,:,5)>(1-range) & S(:,:,5)<(1+range));
-% validMat_num = (S_num(:,:,5)>(1-range) & S_num(:,:,5)<(1+range));
+%%%% Commented block to measure how close S_sum is to 1 (it should be
+%%%% everywhere but you know how data be
+tmp = S(:,:,5);
+tmp_num = S_num(:,:,5);
+
+range = .2;
+tmp(tmp<(1+range) & tmp>(1-range)) = 100;
+tmp_num(tmp_num<(1+range) & tmp_num>(1-range)) = 100;
+
+S(:,:,5) = tmp;
+S_num(:,:,5) = tmp_num;
 
 % Plot the stokes parameter
 f{1} = figure(3);
@@ -215,7 +221,7 @@ clf
 for ii = 1:3
     subplot(2,2,ii)
     imagesc(S_num(:,:,ii+1))
-    caxis([-1,1]) % uncomment to enforce color limits.
+    caxis([-1,1]) % uncomment to enforce color limits. Another error
     colorbar
     axis square
     fillFig(0,0)

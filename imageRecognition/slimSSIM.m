@@ -2,10 +2,10 @@
 
 function val = slimSSIM(im1,im2)
 
-[x,y] = meshgrid(1:3,1:3);
+[x,y] = meshgrid(1:9,1:9);
 window = exp(-(...
-    ((x-ceil(length(x)/2)).^2)./(2*1.5^2) +...
-    ((y-ceil(length(y)/2)).^2)./(2*1.5^2)...
+    ((x-ceil(length(x)/2)).^2)./(40.5000) +... % 2*(9/2)^2
+    ((y-ceil(length(y)/2)).^2)./(40.5000)...
     ));
 window = window/sum(window,'all');
 window = rot90(window,2);
