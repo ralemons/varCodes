@@ -17,7 +17,7 @@
 clear
 
 % CHANGE THIS LINE
-filePath = uigetdir('~/Documents/research/SLAC/Fall19/ULM/Polarization'); % points to the general folder holding the images
+filePath = uigetdir('D:\ULM\Polarization\Pictures\Proper_Technique\'); % points to the general folder holding the images
 
 
 %% Load the files
@@ -28,8 +28,8 @@ dataIN(:,:,2) = imread(fullfile(filePath,'H-IR.png'));
 dataIN(:,:,3) = imread(fullfile(filePath,'V-IR.png'));
 dataIN(:,:,4) = imread(fullfile(filePath,'D-IR.png'));
 dataIN(:,:,5) = imread(fullfile(filePath,'AD-IR.png'));
-dataIN(:,:,6) = imread(fullfile(filePath,'L-IR.png'));
-dataIN(:,:,7) = imread(fullfile(filePath,'R-IR.png'));
+dataIN(:,:,6) = imread(fullfile(filePath,'R-IR.png'));
+dataIN(:,:,7) = imread(fullfile(filePath,'L-IR.png'));
 
 %%% This block of code is what is used to load the manual cropped images
 % dataIN(:,:,1) = rgb2gray(imread(fullfile(filePath,'Full-IR.png')));
@@ -50,12 +50,14 @@ if useXcorr
     %%% These statements point the code to a manually cropped version of
     %%% the full intesity image. In general the manually croped image
     %%% should be 100 pixels smaller in each dimension from the raw images
-    cropFull = double(rgb2gray(imread("/home/randy/Documents/research/SLAC/Fall19/ULM/Polarization/Mixed_H-Sides_V-Center_Crop_Xcorr/manCrop.png")));
-%     cropFull = double(rgb2gray(imread("/home/randy/Documents/research/SLAC/Fall19/ULM/Polarization/Linear_H-All_Crop_Xcorr/manCrop.png")));
-%     cropFull = double(rgb2gray(imread("/home/randy/Documents/research/SLAC/Fall19/ULM/Polarization/Mixed_H_V_Alternating_Circle_Crop_Xcorr/manCrop.png")));
+%     cropFull = double(rgb2gray(imread("D:\ULM\Polarization\Pictures\Mixed_H-Sides_V-Center_Crop_Xcorr\manCrop.png")));
+%     cropFull = double(rgb2gray(imread("D:\ULM\Polarization\Pictures\Linear_H-All_Crop_Xcorr\manCrop.png")));
+%     cropFull = double(rgb2gray(imread("D:\ULM\Polarization\Pictures\Mixed_H_V_Alternating_Circle_Crop_Xcorr\manCrop.png")));
+    cropFull = double(rgb2gray(imread([filePath,'_Crop_Xcorr\manCrop.png'])));
     
     tmp = double(dataIN);
     cropFull = cropFull - mean(cropFull);
+    
     
     for ii = 1:size(tmp,3)
         
@@ -83,7 +85,7 @@ if useXcorr
 else
     
     
-    clearvars -except dataIN filePath
+    clearvars -except dataIN filePath useXcorr %#ok<*UNRCH>
     
     %%% If not doing a xcorr just load the images you want
     dataOUT = double(dataIN);
@@ -94,6 +96,8 @@ end
 
 numGrid.H = 60; % number of MPs in x
 numGrid.V = 60; % number of MPs in y
+% numGrid.H = size(dataOUT,2); % number of MPs in x
+% numGrid.V = size(dataOUT,1); % number of MPs in y
 
 % Find out number of pixels per MP in x and y
 numPix.H = floor(size(dataOUT(:,:,1),2)/numGrid.H);
@@ -109,16 +113,30 @@ posWind.H = size(dataOUT(:,:,1),2)/2-sizeWind.H/2;
 posWind.V = size(dataOUT(:,:,1),1)/2-sizeWind.V/2;
 
 % Calculates which rows and columns to elliminate
-del.H = [1:posWind.H 1+sizeWind.H+posWind.H:size(dataOUT(:,:,1),2)];
-del.V = [1:posWind.V 1+sizeWind.V+posWind.V:size(dataOUT(:,:,1),1)];
+del.H = false(size(dataOUT,2),1);
+del.V = false(size(dataOUT,1),1);
+% del.H = [1:posWind.H 1+sizeWind.H+posWind.H:size(dataOUT(:,:,1),2)];
+% del.V = [1:posWind.V 1+sizeWind.V+posWind.V:size(dataOUT(:,:,1),1)];
+del.H([1:posWind.H 1+sizeWind.H+posWind.H:size(dataOUT(:,:,1),2)]) = 1;
+del.V([1:posWind.V 1+sizeWind.V+posWind.V:size(dataOUT(:,:,1),1)]) = 1;
+
+% % Handles odd cases where the window is equal to the image size in x and y
+% if ~isempty(del.H) && ~isempty(del.V)
+%     dataOUT(del.V,:,:) = [];
+%     dataOUT(:,del.H,:) = [];
+% elseif isempty(del.H) && ~isempty(del.V)
+%     dataOUT(del.V,:,:) = [];
+% elseif ~isempty(del.H) && isempty(del.V)
+%     dataOUT(:,del.H,:) = [];
+% end
 
 % Handles odd cases where the window is equal to the image size in x and y
-if ~isempty(del.H) && ~isempty(del.V)
+if max(del.H) ~= 0 && max(del.V) ~= 0
     dataOUT(del.V,:,:) = [];
     dataOUT(:,del.H,:) = [];
-elseif isempty(del.H) && ~isempty(del.V)
+elseif max(del.H) == 0 && max(del.V) ~= 0
     dataOUT(del.V,:,:) = [];
-elseif ~isempty(del.H) && isempty(del.V)
+elseif max(del.H) ~= 0 && max(del.V) == 0
     dataOUT(:,del.H,:) = [];
 end
 
@@ -151,21 +169,24 @@ S = zeros(sizeWind.V,sizeWind.H,4);
 S_num = zeros(numGrid.V,numGrid.H,4);
 
 % Element wise subtraction of MP
-for ii = 1:numGrid.V
-    for jj = 1:numGrid.H
+for ii = 1:(numGrid.V)
+    for jj = 1:(numGrid.H)
         
         p0 = dataOUT(grids.V(:,ii),grids.H(:,jj),1);
+%         p0 = (dataOUT(grids.V(:,ii),grids.H(:,jj),2) + dataOUT(grids.V(:,ii),grids.H(:,jj),3));
+%         p0 = (dataOUT(grids.V(:,ii),grids.H(:,jj),4) + dataOUT(grids.V(:,ii),grids.H(:,jj),5));
+%         p0 = (dataOUT(grids.V(:,ii),grids.H(:,jj),6) + dataOUT(grids.V(:,ii),grids.H(:,jj),7));
         p1 = (dataOUT(grids.V(:,ii),grids.H(:,jj),2) - dataOUT(grids.V(:,ii),grids.H(:,jj),3));
         p2 = (dataOUT(grids.V(:,ii),grids.H(:,jj),4) - dataOUT(grids.V(:,ii),grids.H(:,jj),5));
         p3 = (dataOUT(grids.V(:,ii),grids.H(:,jj),6) - dataOUT(grids.V(:,ii),grids.H(:,jj),7));
         
         
-        S(grids.V(:,ii),grids.H(:,jj),1) = p0; % should be p0/p0 but this gives the orignal image and p0 isn't used
+        S(grids.V(:,ii),grids.H(:,jj),1) = p0./p0; % should be p0/p0 but this gives the orignal image and p0 isn't used
         S(grids.V(:,ii),grids.H(:,jj),2) = p1./p0;
         S(grids.V(:,ii),grids.H(:,jj),3) = p2./p0;
         S(grids.V(:,ii),grids.H(:,jj),4) = p3./p0;
         
-        S_num(ii,jj,1) = unique(p0); % same as with S
+        S_num(ii,jj,1) = unique(p0./p0); % same as with S
         S_num(ii,jj,2) = unique(p1./p0);
         S_num(ii,jj,3) = unique(p2./p0);
         S_num(ii,jj,4) = unique(p3./p0);
@@ -176,29 +197,25 @@ end
 
 % Create the sum of the squares to get visual of error. Farther from 1 in
 % either direction is larger error
-S(:,:,5) = sum( S(:,:,2:4).^2 , 3);
-S_num(:,:,5) = sum( S_num(:,:,2:4).^2 , 3);
+S(:,:,5) = sqrt( sum( S(:,:,2:4).^2 , 3) );
+S_num(:,:,5) = sqrt( sum( S_num(:,:,2:4).^2 , 3) );
 
+%%%% Measure where S_sum is <= 1 (it should be everywhere but you know
+%%%% how data be)
+validMat = (S(:,:,5)<=(1.05));
+validMat_num = (S_num(:,:,5)<=(1.05));
 
-%%% Commented block to measure how close S_sum is to 1 (it should be
-%%% everywhere but you know how data be
-% tmp = S(:,:,5);
-% tmp_num = S_num(:,:,5);
-%
-% range = .2;
-% tmp(tmp<(1+range) & tmp>(1-range)) = 100;
-% tmp_num(tmp_num<(1+range) & tmp_num>(1-range)) = 100;
-%
-% S(:,:,5) = tmp;
-% S_num(:,:,5) = tmp_num;
+% range = .05;
+% validMat = (S(:,:,5)>(1-range) & S(:,:,5)<(1+range));
+% validMat_num = (S_num(:,:,5)>(1-range) & S_num(:,:,5)<(1+range));
 
 % Plot the stokes parameter
-f{1} = figure(1);
+f{1} = figure(3);
 clf
 for ii = 1:3
     subplot(2,2,ii)
     imagesc(S_num(:,:,ii+1))
-    %     caxis([-1,1]) % uncomment to enforce color limits. Another error
+    caxis([-1,1]) % uncomment to enforce color limits.
     colorbar
     axis square
     fillFig(0,0)
@@ -207,7 +224,11 @@ end
 
 % Plot the sum of the squares
 subplot(2,2,4)
-imagesc(S_num(:,:,5))
+plotMat = dataOUT(:,:,1);
+% plotMat = S_num(:,:,5);
+plotMat(~validMat) = NaN;
+imagesc(plotMat)
+% imagesc(S_num(:,:,5))
 colorbar
 axis square
 fillFig(0,0)
@@ -255,24 +276,27 @@ clear S_polar
 % Take only S1, S2, and S3
 S_polar = S_num(:,:,2:4);
 
-% fullIm = dataIN(:,:,1);
 if exist('coords','var')
     fullIm = dataIN(coords(1,1)-size(cropFull,1)+1:coords(1,1),...
         coords(1,2)-size(cropFull,2)+1:coords(1,2),...
         1);
+    fullIm = fullIm(~del.V,~del.H);
 else
     fullIm = dataIN(:,:,1);
 end
 
 div = 2; % Divides number of MP by this to choose how many MP to plot
-scale = 75; % How big each arrrow is (Just play with this, it's weird)
+scale = 100; % How big each arrrow is (Just play with this, it's weird)
 arrowMove = 500; %1200; % How far the arrow is along the circle (Just play with this, it's weird)
-fignum = 2; % What the number old plot that would of the figure you create is
+fignum = 4; % What the number old plot that would of the figure you create is
 chooseROI = 0; % Pulls up selectable ROI if 1, plot full image if 0
 macroPixSize = numPix;
-logMat = fullIm;
+% logMat = fullIm >= max(fullIm,[],'all')/4;
+% logMat = logMat & validMat;
+logMat = validMat;
 
-[a,b,c] = polarEllipsePlot(S_polar,fullIm,div,scale,arrowMove,fignum,chooseROI,numPix,dataOUT(:,:,1));
+[a,b,c] = polarEllipsePlot(S_polar,fullIm,div,scale,arrowMove,fignum,chooseROI,macroPixSize,logMat);
+% [a,b,c] = polarEllipsePlot(S_polar,fullIm,div,scale,arrowMove,fignum,chooseROI,macroPixSize);
 % print('-painters','-dsvg','untitled')
 
 

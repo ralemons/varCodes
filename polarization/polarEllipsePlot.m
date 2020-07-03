@@ -35,10 +35,8 @@ XY(:,2) = sort(repmat(Y,1,numel(Y)));
 XYinROI = inROI(h,XY(:,1),XY(:,2));
 XY = XY(XYinROI,:);
 
-if exist('numPix','var') && exist('logMat','var')
-    logMat = uint16(logMat) >= max(fullImage,[],'all')/4;
-    logMat = logMat';
-else
+% if ~exist('macroPixSize','var') && ~exist('logMat','var')
+if ~exist('logMat','var')
     logMat = ones(size(fullImage));
 end
 
@@ -53,7 +51,7 @@ counter = 1;
 % Loop through all the ellipses that need to be created
 for ii = 1:size(XY,1)
     
-    if logMat((XY(ii,1)*macroPixSize.V),(XY(ii,2)*macroPixSize.H)) == 1
+    if logMat((XY(ii,2)*macroPixSize.V),(XY(ii,1)*macroPixSize.H)) == 1
         
         
         % Find stokes parameters
@@ -95,7 +93,6 @@ for ii = 1:size(XY,1)
         % Place ellipse in correct place ie. (0,0) -> (X,Y)
         A = A + XY(ii,1);
         B = B + XY(ii,2);
-        %     Column
         
         % Where to plot arrow around the ellipse
         if flip == 0
@@ -132,11 +129,11 @@ for ii = 1:size(XY,1)
             ar(counter) = arrowh(xArrowHead,yArrowHead,co,arrowScale,arrowPos); % Arrow
         end
         
-        %     if flip == 1
-        %         p.Color = coWarn;
-        %         ar.EdgeColor = coWarn;
-        %         ar.FaceColor = coWarn;
-        %     end
+%         if flip == 1
+%             p(counter).Color = coWarn;
+%             ar(counter).EdgeColor = coWarn;
+%             ar(counter).FaceColor = coWarn;
+%         end
         
         counter = counter + 1;
         

@@ -180,7 +180,7 @@ if plotParams(1) == 1
     yLabel = {'$$\Delta \nu$$ (kHz)','$$\Delta \nu$$ (Hz)'};
     
     yScale = [1e3,1e0];
-    lineW = [1,1];
+    lineW = [4,4];
     
     
     
@@ -221,7 +221,7 @@ if plotParams(1) == 1
         % Make it look nice
         xlabel(xLabel{ii},'FontSize',24,'Interpreter','latex');
         ylabel(yLabel{ii},'FontSize',24,'Interpreter','latex');
-        ax.FontSize = 60;
+        ax.FontSize = 40;
 %         title(titles{ii},'FontSize',40,'Interpreter','latex');
         %         legend({'No Averaging','Averaging = 5'},'Location','northeast');
     end

@@ -20,25 +20,25 @@ dataOUT = dataIN;
 optFreq = 1.934e14; % Optical Frequency in Hz
 
 % fileOrder = {'Only CEP','ULM w/ LOCSET','ULM w/ Phase Shifters','Propagation Noise'};
-fileOrder = {'RF Reference','OOL'};
+fileOrder = {'RF Reference','Long','Paper'};
 
 
 
 
 %%%% Frequency Range %%%%%
 
-% %%% Select ranges for data analysis
-% highPass = 1;
-% [~,shift] = min(abs(dataOUT(:,1,1)-highPass));
-% if shift ~= 1
-%     dataOUT(1:shift,:,:) = [];
-% end
-% 
-% lowPass = 3e6;
-% [~,shift] = min(abs(dataOUT(:,1,1)-lowPass));
-% if shift ~= length(dataOUT(:,1,1))
-%     dataOUT(shift:end,:,:) = [];
-% end
+%%% Select ranges for data analysis
+highPass = 1;
+[~,shift] = min(abs(dataOUT(:,1,1)-highPass));
+if shift ~= 1
+    dataOUT(1:shift,:,:) = [];
+end
+
+lowPass = 3e6;
+[~,shift] = min(abs(dataOUT(:,1,1)-lowPass));
+if shift ~= length(dataOUT(:,1,1))
+    dataOUT(shift:end,:,:) = [];
+end
 
 
 
