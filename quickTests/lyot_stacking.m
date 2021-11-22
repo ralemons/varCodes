@@ -20,8 +20,10 @@ uJ = J*10^-6;
 crys = 'BBO'; % BBO or YVO4 or CAL
 lambda = 0.257; % Enter lambda in um regardless of set space unit
 figNum = 1; % number for the figure you want, use to not overide other plots
-tau = 3.5*ps/1.665; % tau = FWHM/1.665
+tau = 2*ps/1.665; % tau = FWHM/1.665
 power = 5*uJ; % normalize the energy in the pulse to real numbers
+dCrysBase = 3 * mm; % base length of crystals
+numCrys = 4;
 
 % sympref('FourierParameters',[(1/sqrt(2*pi)) 1]); % you can uncomment this to use the same fourier parameters as Mathematica
 
@@ -30,12 +32,12 @@ dn = ne - no; % difference in refractive index between crystal axis
 
 
 %% Crystal Definition
-thetaCrys = ones(4,1) .* deg2rad(45); % angle of the crystals
+thetaCrys = ones(numCrys,1) .* deg2rad(45); % angle of the crystals
 
-phiCrys = ones(4,1) .* 0; % precise tunning of crystals
+thetaPols = zeros(numCrys,1);
 
-dCrysBase = 3 * mm; % base length
-dCrys = ones(4,1) .* dCrysBase .* 2.^(0:3)'; % generate larger crystals
+phiCrys = ones(numCrys,1) .* 0; % precise tunning of crystals
+dCrys = ones(numCrys,1) .* dCrysBase .* 2.^(0:(numCrys-1))'; % generate larger crystals
 
 
 %% Function Definitions
@@ -69,12 +71,12 @@ T(theta,phi,d) = R(-theta)*BP(phi,d)*R(theta); % Rotated crystal to the right or
 GaussIn = [F(w);0]; % input pulse in frequency space
 
 % Output of the stacker. There are currently four crystals. Also I don't
-% call it T(w) right away so that the first element (along the polarizor
+% call it T(w) right away so that the first element (along the polarizer
 % direction) can be pulled out
-TF  = Pol(0) * T(thetaCrys(4),phiCrys(4),dCrys(4))...
-    * Pol(0) * T(thetaCrys(3),phiCrys(3),dCrys(3))...
-    * Pol(0) * T(thetaCrys(2),phiCrys(2),dCrys(2))...
-    * Pol(0) * T(thetaCrys(1),phiCrys(1),dCrys(1))...
+TF  = Pol(thetaPols(4)) * T(thetaCrys(4),phiCrys(4),dCrys(4))...
+    * Pol(thetaPols(4)) * T(thetaCrys(3),phiCrys(3),dCrys(3))...
+    * Pol(thetaPols(4)) * T(thetaCrys(2),phiCrys(2),dCrys(2))...
+    * Pol(thetaPols(4)) * T(thetaCrys(1),phiCrys(1),dCrys(1))...
     * GaussIn;
 TF(w) = TF(1); % now we can make out function
 TFHan = matlabFunction(TF(w));
@@ -95,17 +97,17 @@ end
 dt = 0.01*ps;
 times = -20*ps:dt:20*ps;
 
-[FWHM(1,:),rise(1,:),~] = pulseParams(abs(fHan(times)).^2,times);
-disp(['>>>> Input pulse has a FWHM of: ',num2str(FWHM(1,:)),...
-    ' ps and a rise/fall time of: ',num2str(rise(1,:)),' ps'])
+[FWHM{1},rise{1},~] = pulseParams(abs(fHan(times)).^2,times);
+disp(['>>>> Input pulse has a FWHM of: ',num2str(FWHM{1}),...
+    ' ps and a rise/fall time of: ',num2str(rise{1}),' ps'])
 
-[FWHM(2,:),rise(2,:),~] = pulseParams(abs(PulseHan(times)).^2,times);
-if size(rise(2,:),2) >= 2
-    disp(['>>>> Output pulse is a train with FWHM of: ',num2str(FWHM(2,1)),...
-        ' ps and a rise/fall time of: ',num2str(rise(2,1)),' ps'])
+[FWHM{2},rise{2},~] = pulseParams(abs(PulseHan(times)).^2,times);
+if length(rise{2}) >= 2
+    disp(['>>>> Output pulse is a train with FWHM of: ',num2str(FWHM{2}(1)),...
+        ' ps and a rise/fall time of: ',num2str(rise{2}(1)),' ps'])
 else
-    disp(['>>>> Output pulse has a FWHM of: ',num2str(FWHM(2,:)),...
-        ' ps and a rise/fall time of: ',num2str(rise(2,:)),' ps'])
+    disp(['>>>> Output pulse has a FWHM of: ',num2str(FWHM{2}),...
+        ' ps and a rise/fall time of: ',num2str(rise{2}),' ps'])
 end
 
 figure(figNum)
@@ -119,8 +121,8 @@ text(min(times)*0.925,max(abs(fHan(times)).^2)*0.85,'Intital Parameters','FontWe
 text(min(times)*0.925,max(abs(fHan(times)).^2)*0.8,['Crystal Choice: ',crys]);
 text(min(times)*0.925,max(abs(fHan(times)).^2)*0.75,['Wavelength: ',num2str(lambda),' um']);
 text(min(times)*0.925,max(abs(fHan(times)).^2)*0.7,['Crystal Lengths: ',char(strjoin(string(dCrys),', ')),' mm']);
-text(min(times)*0.925,max(abs(fHan(times)).^2)*0.65,['FWHM: ',num2str(FWHM(1,1)),' ps']);
-text(min(times)*0.925,max(abs(fHan(times)).^2)*0.6,['Rise/Fall: ',num2str(rise(1,1)),' ps']);
+text(min(times)*0.925,max(abs(fHan(times)).^2)*0.65,['FWHM: ',num2str(FWHM{1}),' ps']);
+text(min(times)*0.925,max(abs(fHan(times)).^2)*0.6,['Rise/Fall: ',num2str(rise{1}),' ps']);
 fillFig(0,0)
 
 subplot(2,1,2)
@@ -128,8 +130,8 @@ plot(times,abs(PulseHan(times)).^2,'LineWidth',3)
 title('Output Pulse','FontSize',30);
 xlabel('ps','FontSize',24);
 text(min(times)*0.925,max(abs(PulseHan(times)).^2)*0.85,'Output Parameters','FontWeight','bold');
-text(min(times)*0.925,max(abs(PulseHan(times)).^2)*0.8,['FWHM: ',num2str(FWHM(2,1)),' ps']);
-text(min(times)*0.925,max(abs(PulseHan(times)).^2)*0.75,['Rise/Fall: ',num2str(rise(2,1)),' ps']);
+text(min(times)*0.925,max(abs(PulseHan(times)).^2)*0.8,['FWHM: ',num2str(FWHM{2}(1)),' ps']);
+text(min(times)*0.925,max(abs(PulseHan(times)).^2)*0.75,['Rise/Fall: ',num2str(rise{2}(1)),' ps']);
 fillFig(0,0)
 
 
