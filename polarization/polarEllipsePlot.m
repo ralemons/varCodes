@@ -7,13 +7,13 @@ function [varargout] = polarEllipsePlot(S,fullImage,div,arrowScale,arrowPos,fign
 X = 1:div:size(S,2);
 Y = 1:div:size(S,1);
 
-% Scales image and places it on grid for the ellipses to plot on
+% % Scales image and places it on grid for the ellipses to plot on
 f = figure(fignum);
 clf
-imagesc([0 size(S,2)+1],[0 size(S,1)+1], fullImage );
+% imagesc([0 size(S,2)+1],[0 size(S,1)+1], fullImage );
 xlim([0 size(S,2)+1]);
 ylim([0 size(S,1)+1]);
-axis square
+axis square off
 
 % ROI choice and plotting
 if chooseROI
@@ -48,6 +48,9 @@ hold on
 % flip = 0;
 
 counter = 1;
+co = [255, 255, 255]/255;
+
+
 % Loop through all the ellipses that need to be created
 for ii = 1:size(XY,1)
     
@@ -55,16 +58,17 @@ for ii = 1:size(XY,1)
         
         
         % Find stokes parameters
-        s1 = S(XY(ii,2),XY(ii,1),1);
-        s2 = S(XY(ii,2),XY(ii,1),2);
-        s3 = S(XY(ii,2),XY(ii,1),3);
+        s0 = S(XY(ii,2),XY(ii,1),1);
+        s1 = S(XY(ii,2),XY(ii,1),2);
+        s2 = S(XY(ii,2),XY(ii,1),3);
+        s3 = S(XY(ii,2),XY(ii,1),4);
         
         % Generate ellipse values based on stokes parameters
         e = sqrt( (2 * sqrt(s1^2+s2^2)) / (1 + sqrt(s1^2+s2^2)) );
         theta = pi-atan2(s2,s1)/2;
         
         % Major and minor axis of the ellipse
-        a = .45*div;
+        a = (s0/2)*div;
         b = a.*sqrt(1-e.^2);
         
         % If e>1 then b goes pure imaginary. This sets b as the negative value
@@ -100,16 +104,16 @@ for ii = 1:size(XY,1)
         else
             [~,top] = min( abs((0:pi/nPts:2*pi) - 3*pi/2) );
         end
-        
+                
         % Which direction to plot the arrow
         if sign(s3) == 1 || sign(s3) == 0
             xArrowHead = [A(top-1) A(top)];
             yArrowHead = [B(top-1) B(top)];
-            co = [255, 255, 255]/255;
+%             co = [255, 255, 255]/255;
         else
             xArrowHead = [A(top) A(top-1)];
             yArrowHead = [B(top) B(top-1)];
-            co = [255, 73, 41]/255;
+%             co = [255, 73, 41]/255;
         end
         
         % Keeps the warning from showing up about imaginary numbers
@@ -119,14 +123,17 @@ for ii = 1:size(XY,1)
         %     co = [0.8500 0.3250 0.0980];
         %     coWarn = [0.7500 0 0.7500];
         
-        
-        p(counter) = plot(A,B,'Color',co,'linewidth',1); % Ellipse
-        if isempty(arrowPos) && isempty(arrowScale)
-            ar(counter) = arrowh(xArrowHead,yArrowHead,co); % Arrow
-        elseif isempty(arrowPos) && ~isempty(arrowScale)
-            ar(counter) = arrowh(xArrowHead,yArrowHead,co,arrowScale); % Arrow
-        else
-            ar(counter) = arrowh(xArrowHead,yArrowHead,co,arrowScale,arrowPos); % Arrow
+        if a > 0.2
+            
+            p(counter) = plot(A,B,'Color',co,'linewidth',1); % Ellipse
+            if isempty(arrowPos) && isempty(arrowScale * s0)
+                ar(counter) = arrowh(xArrowHead,yArrowHead,co); % Arrow
+            elseif isempty(arrowPos) && ~isempty(arrowScale * s0)
+                ar(counter) = arrowh(xArrowHead,yArrowHead,co,arrowScale * s0); % Arrow
+            else
+                ar(counter) = arrowh(xArrowHead,yArrowHead,co,arrowScale * s0,arrowPos); % Arrow
+            end
+            
         end
         
 %         if flip == 1

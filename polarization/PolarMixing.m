@@ -179,12 +179,12 @@ for ii = 1:(numGrid.V)
         p3 = (dataOUT(grids.V(:,ii),grids.H(:,jj),7) - dataOUT(grids.V(:,ii),grids.H(:,jj),6));
         
         
-        S(grids.V(:,ii),grids.H(:,jj),1) = p0./p0; % should be p0/p0 but this gives the orignal image and p0 isn't used
+        S(grids.V(:,ii),grids.H(:,jj),1) = p0; % should be p0/p0 but this gives the orignal image and p0 isn't used
         S(grids.V(:,ii),grids.H(:,jj),2) = p1./p0;
         S(grids.V(:,ii),grids.H(:,jj),3) = p2./p0;
         S(grids.V(:,ii),grids.H(:,jj),4) = p3./p0;
         
-        S_num(ii,jj,1) = unique(p0./p0); % same as with S
+        S_num(ii,jj,1) = unique(p0); % same as with S
         S_num(ii,jj,2) = unique(p1./p0);
         S_num(ii,jj,3) = unique(p2./p0);
         S_num(ii,jj,4) = unique(p3./p0);
@@ -279,8 +279,9 @@ warning('off','MATLAB:plot:IgnoreImaginaryXYPart');
 
 clear S_polar
 
-% Take only S1, S2, and S3
-S_polar = S_num(:,:,2:4);
+% % Take only S1, S2, and S3
+S_polar = S_num(:,:,1:4);
+S_polar(:,:,1) = S_polar(:,:,1)/max(max(S_polar(:,:,1)));
 
 if exist('coords','var')
     fullIm = dataIN(coords(1,1)-size(cropFull,1)+1:coords(1,1),...
